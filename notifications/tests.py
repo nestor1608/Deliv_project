@@ -20,17 +20,6 @@ from tests.factories import (
 )
 from notifications.models import Notification, UserDevice
 
-# ---------------------------------------------------------------------------
-# Workaround for a pre-existing bug in core/exceptions.py:  The function
-# get_error_code is defined twice in the same file; the second definition
-# (single argument) shadows the first (two arguments), but
-# format_error_response still calls it with two arguments, causing a
-# TypeError.  We patch it here at module level so the tests can run.
-# ---------------------------------------------------------------------------
-import core.exceptions as _core_exc
-_original_get_error_code = _core_exc.get_error_code
-_core_exc.get_error_code = lambda code, exc=None: _original_get_error_code(code)
-
 User = get_user_model()
 
 

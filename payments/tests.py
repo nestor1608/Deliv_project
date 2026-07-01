@@ -22,17 +22,6 @@ from tests.factories import (
 )
 from payments.models import Payment, PaymentMethod
 
-# ---------------------------------------------------------------------------
-# Workaround for a pre-existing bug in core/exceptions.py:  The function
-# get_error_code is defined twice in the same file; the second definition
-# (single argument) shadows the first (two arguments), but
-# format_error_response still calls it with two arguments, causing a
-# TypeError.  We patch it here at module level so the tests can run.
-# ---------------------------------------------------------------------------
-import core.exceptions as _core_exc
-_original_get_error_code = _core_exc.get_error_code
-_core_exc.get_error_code = lambda code, exc=None: _original_get_error_code(code)
-
 User = get_user_model()
 
 
@@ -326,7 +315,11 @@ class PaymentViewSetTests(APITestCase):
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['refund']['amount'], str(refund_amount))
+        from decimal import Decimal
+        self.assertEqual(
+            Decimal(response.data['refund']['amount']).quantize(Decimal('0.00')),
+            refund_amount.quantize(Decimal('0.00')),
+        )
 
     def test_refund_pending_payment_fails(self):
         """Refunding a non-completed (pending) payment returns 400."""

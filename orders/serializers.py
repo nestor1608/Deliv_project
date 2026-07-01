@@ -100,7 +100,12 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         # Crear los items y calcular totales
         subtotal = Decimal('0.00')
         for item_data in items_data:
-            product = Product.objects.get(id=item_data['product_id'])
+            try:
+                product = Product.objects.get(id=item_data['product_id'])
+            except Product.DoesNotExist:
+                raise serializers.ValidationError(
+                    {'items': f"Producto con id {item_data['product_id']} no existe"}
+                )
             item_data['product'] = product
             item_data['unit_price'] = product.price
             

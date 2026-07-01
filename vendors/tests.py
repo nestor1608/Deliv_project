@@ -27,7 +27,9 @@ class VendorCategoryAPITests(APITestCase):
         response = self.client.get(self.url_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Only active categories should appear
-        ids = [c['id'] for c in response.data]
+        # Response is paginated: {'count': ..., 'results': [...]}
+        results = response.data if isinstance(response.data, list) else response.data.get('results', [])
+        ids = [c['id'] for c in results]
         self.assertIn(self.category.id, ids)
         self.assertNotIn(self.inactive_category.id, ids)
 

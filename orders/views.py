@@ -56,13 +56,29 @@ class OrderDetailView(generics.RetrieveAPIView):
     Vista para ver detalles de un pedido específico
     """
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOrderOwner]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         return Order.objects.prefetch_related(
             'items__product', 
             'status_history'
         )
+    
+    def get_object(self):
+        """Filter by user's accessible orders so unauthorized access returns 404."""
+        queryset = self.get_queryset()
+        user = self.request.user
+        
+        if user.role == 'customer' and hasattr(user, 'customer_profile'):
+            queryset = queryset.filter(customer=user.customer_profile)
+        elif user.role == 'vendor' and hasattr(user, 'vendor_profile'):
+            queryset = queryset.filter(vendor=user.vendor_profile)
+        elif user.role == 'delivery':
+            queryset = queryset.filter(delivery_person=user.delivery_profile)
+        else:
+            queryset = queryset.none()
+        
+        return get_object_or_404(queryset, pk=self.kwargs['pk'])
 
 @extend_schema(
     summary='Listar pedidos del comercio',
@@ -118,18 +134,9 @@ def update_order_status(request, order_id):
     # Guardar estado anterior
     previous_status = order.status
     
-    # Actualizar pedido
+    # Actualizar pedido (el signal pre_save crea el OrderStatusHistory automáticamente)
     order.status = new_status
     order.save()
-    
-    # Crear entrada en historial
-    OrderStatusHistory.objects.create(
-        order=order,
-        previous_status=previous_status,
-        new_status=new_status,
-        changed_by=request.user,
-        notes=notes
-    )
     
     return Response({
         'message': 'Estado actualizado correctamente',
@@ -169,7 +176,7 @@ def order_tracking(request, order_number):
         elif request.user.role == 'delivery':
             order = Order.objects.get(
                 order_number=order_number,
-                delivery_person=request.user
+                delivery_person=request.user.delivery_profile
             )
         else:
             return Response(

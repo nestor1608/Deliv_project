@@ -64,16 +64,18 @@ class OrderAPITests(APITestCase):
         self.client.force_authenticate(user=new_customer.user)
         response = self.client.get(self.url_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
+        results = response.data if isinstance(response.data, list) else response.data.get('results', [])
+        self.assertEqual(len(results), 0)
 
     def test_list_orders_with_orders(self):
         """Customer with orders sees their own orders."""
         self.client.force_authenticate(user=self.customer_user)
         response = self.client.get(self.url_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        results = response.data if isinstance(response.data, list) else response.data.get('results', [])
+        self.assertGreaterEqual(len(results), 1)
         # Verify all returned orders belong to this customer
-        for order_data in response.data:
+        for order_data in results:
             self.assertEqual(order_data['customer_info']['id'], self.customer.id)
 
     def test_list_orders_unauthenticated_fails(self):
@@ -234,7 +236,8 @@ class OrderAPITests(APITestCase):
         response = self.client.get(self.url_vendor_orders)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # The order from setUp belongs to self.vendor
-        ids = [o['id'] for o in response.data]
+        results = response.data if isinstance(response.data, list) else response.data.get('results', [])
+        ids = [o['id'] for o in results]
         self.assertIn(self.order.id, ids)
 
     def test_vendor_orders_excludes_other_vendor_orders(self):
@@ -247,7 +250,8 @@ class OrderAPITests(APITestCase):
         )
         self.client.force_authenticate(user=self.vendor_user)
         response = self.client.get(self.url_vendor_orders)
-        ids = [o['id'] for o in response.data]
+        results = response.data if isinstance(response.data, list) else response.data.get('results', [])
+        ids = [o['id'] for o in results]
         self.assertIn(self.order.id, ids)
         self.assertNotIn(other_order.id, ids)
 
@@ -269,7 +273,8 @@ class OrderAPITests(APITestCase):
         self.client.force_authenticate(user=new_vendor_user)
         response = self.client.get(self.url_vendor_orders)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
+        results = response.data if isinstance(response.data, list) else response.data.get('results', [])
+        self.assertEqual(len(results), 0)
 
     # =====================================================================
     # UPDATE ORDER STATUS /api/orders/<order_id>/status/  (IsVendor)
@@ -287,12 +292,15 @@ class OrderAPITests(APITestCase):
 
     def test_vendor_update_status_creates_history(self):
         """Status change creates an OrderStatusHistory entry."""
+        # Reset status to pending so test is order-independent
+        self.order.status = 'pending'
+        self.order.save(update_fields=['status'])
         self.client.force_authenticate(user=self.vendor_user)
         url = reverse('orders:update-order-status', kwargs={'order_id': self.order.id})
         data = {'status': 'confirmed'}
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        history = OrderStatusHistory.objects.filter(order=self.order)
+        history = OrderStatusHistory.objects.filter(order=self.order, new_status='confirmed')
         self.assertEqual(history.count(), 1)
         self.assertEqual(history.first().new_status, 'confirmed')
         self.assertEqual(history.first().previous_status, 'pending')
@@ -384,9 +392,8 @@ class OrderAPITests(APITestCase):
         self.client.force_authenticate(user=self.delivery_user)
         url = reverse('orders:order-tracking', kwargs={'order_number': self.order.order_number})
         response = self.client.get(url)
-        # The view compares delivery_person FK (DeliveryPerson) to request.user (User),
-        # which will not match, so expect 404 due to DoesNotExist
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['order_number'], self.order.order_number)
 
     def test_tracking_wrong_customer_fails(self):
         """Another customer cannot track an order they don't own (404)."""

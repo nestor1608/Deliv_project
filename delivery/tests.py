@@ -46,7 +46,7 @@ class PatchedAPITestCase(APITestCase):
         # accesses self.request instead of the local `request` variable at line 166.
         self._mw_patch = patch(
             'users.middleware.security.SecurityMiddleware.add_security_headers',
-            lambda self, response: None,
+            lambda self, request, response: None,
         )
         self._mw_patch.start()
         # Patch the exception handler bug: format_error_response calls

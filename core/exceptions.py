@@ -118,7 +118,7 @@ def format_error_response(response, exc, context):
     response.data = custom_response_data
     return response
 
-def get_error_code(status_code, exc):
+def get_error_code(status_code, exc=None):
     """Obtener código de error consistente"""
     error_codes = {
         400: 'bad_request',

@@ -139,6 +139,16 @@ class PaymentViewSet(viewsets.ModelViewSet):
             )
         
         amount = request.data.get('amount', payment.amount)
+        # Convertir a Decimal si viene como string desde request.data
+        if isinstance(amount, str):
+            from decimal import Decimal, InvalidOperation
+            try:
+                amount = Decimal(amount)
+            except InvalidOperation:
+                return Response(
+                    {'error': 'Monto inválido'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         reason = request.data.get('reason', 'Reembolso solicitado por usuario')
         
         # Validar monto
