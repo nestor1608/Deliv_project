@@ -1,0 +1,6940 @@
+openapi: 3.0.3
+info:
+  title: Deliv API
+  version: 1.0.0
+  description: API de la plataforma híbrida de delivery y movilidad
+paths:
+  /api/auth/change-password/:
+    put:
+      operationId: auth_change_password_update
+      description: Vista mejorada para cambiar contraseña
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePassword'
+          description: ''
+    patch:
+      operationId: auth_change_password_partial_update
+      description: Vista mejorada para cambiar contraseña
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePasswordRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePassword'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Vista mejorada para cerrar sesión con invalidación de tokens
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/password-reset/:
+    post:
+      operationId: auth_password_reset_create
+      description: Envía un email con un enlace para restablecer la contraseña. Incluye
+        rate limiting por email (5 minutos entre solicitudes). Por seguridad, siempre
+        retorna el mismo mensaje independientemente de si el email existe.
+      summary: Solicitar restablecimiento de contraseña
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestRequest'
+            examples:
+              SolicitudDeRecuperación:
+                value:
+                  email: usuario@ejemplo.com
+                summary: Ejemplo de solicitud
+                description: Ejemplo de una solicitud de restablecimiento de contraseña
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: Mensaje genérico indicando que si el email existe, se enviará
+            el enlace de recuperación
+        '429':
+          description: Demasiadas solicitudes - ya se envió un enlace recientemente.
+            Espera 5 minutos.
+  /api/auth/password-reset-confirm/{uidb64}/{token}/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      description: Confirma el restablecimiento de contraseña usando el UID y token
+        enviados por email. Valida que el enlace sea válido y no haya expirado.
+      summary: Confirmar restablecimiento de contraseña
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: uidb64
+        schema:
+          type: string
+        required: true
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: Contraseña restablecida correctamente
+        '400':
+          description: Enlace inválido o expirado - el UID o token no son válidos
+  /api/auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      description: Retorna los datos del perfil del usuario autenticado.
+      summary: Obtener perfil de usuario
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_profile_update
+      description: Actualiza todos los datos del perfil del usuario autenticado. No
+        permite modificar campos críticos como username, role o status.
+      summary: Actualizar perfil de usuario (completo)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          description: Error de validación o campo restringido
+    patch:
+      operationId: auth_profile_partial_update
+      description: Actualiza parcialmente los datos del perfil del usuario autenticado.
+        No permite modificar campos críticos como username, role o status.
+      summary: Actualizar perfil de usuario (parcial)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          description: Error de validación o campo restringido
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Vista para registro de nuevos usuarios con validaciones mejoradas
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /api/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: Autentica un usuario usando nombre de usuario o email y contraseña.
+        Retorna tokens JWT (access y refresh) junto con los datos del usuario. Valida
+        el rol del usuario para control de acceso.
+      summary: Inicio de sesión
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              LoginExitoso:
+                value:
+                  username_or_email: usuario@ejemplo.com
+                  password: contraseña123
+                  user_type: customer
+                summary: Ejemplo de inicio de sesión
+                description: Ejemplo de una solicitud de inicio de sesión exitosa
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Autenticación exitosa - retorna tokens JWT y datos del usuario
+        '400':
+          description: Error de autenticación - credenciales inválidas, cuenta inactiva
+            o rol incorrecto
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/token/verify/:
+    post:
+      operationId: auth_token_verify_create
+      description: |-
+        Takes a token and indicates if it is valid.  This view provides no
+        information about a token's fitness for a particular use.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /api/customers/addresses/:
+    get:
+      operationId: customers_addresses_list
+      description: Retorna la lista de direcciones guardadas del cliente autenticado.
+      summary: Listar direcciones del cliente
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomerAddressList'
+          description: ''
+    post:
+      operationId: customers_addresses_create
+      description: Crea una nueva dirección para el cliente autenticado. Si se marca
+        como predeterminada, las demás direcciones se desmarcan automáticamente.
+      summary: Crear dirección del cliente
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressRequest'
+            examples:
+              NuevaDirección:
+                value:
+                  label: Casa
+                  street_address: Av. Principal 123
+                  city: Ciudad de México
+                  state: CDMX
+                  postal_code: '06600'
+                  country: México
+                  is_default: true
+                summary: Ejemplo de creación de dirección
+                description: Ejemplo de una solicitud para crear una nueva dirección
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddress'
+          description: ''
+        '400':
+          description: Error de validación
+  /api/customers/addresses/{id}/:
+    get:
+      operationId: customers_addresses_retrieve
+      description: Retorna los detalles de una dirección específica del cliente autenticado.
+      summary: Obtener dirección del cliente
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddress'
+          description: ''
+    put:
+      operationId: customers_addresses_update
+      description: Actualiza todos los campos de una dirección específica del cliente
+        autenticado.
+      summary: Actualizar dirección (completa)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddress'
+          description: ''
+    patch:
+      operationId: customers_addresses_partial_update
+      description: Actualiza parcialmente los campos de una dirección específica del
+        cliente autenticado.
+      summary: Actualizar dirección (parcial)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerAddressRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerAddressRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerAddressRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddress'
+          description: ''
+    delete:
+      operationId: customers_addresses_destroy
+      description: Elimina una dirección específica del cliente autenticado.
+      summary: Eliminar dirección
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/customers/profile/:
+    get:
+      operationId: customers_profile_retrieve
+      description: Retorna los datos del perfil de cliente del usuario autenticado.
+        Si no existe un perfil de cliente, lo crea automáticamente.
+      summary: Obtener perfil de cliente
+      tags:
+      - customers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    put:
+      operationId: customers_profile_update
+      description: Actualiza todos los datos del perfil de cliente del usuario autenticado.
+      summary: Actualizar perfil de cliente (completo)
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    patch:
+      operationId: customers_profile_partial_update
+      description: Actualiza parcialmente los datos del perfil de cliente del usuario
+        autenticado.
+      summary: Actualizar perfil de cliente (parcial)
+      tags:
+      - customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+  /api/delivery/delivery-persons/:
+    get:
+      operationId: delivery_delivery_persons_list
+      description: Obtiene la lista de repartidores según el perfil del usuario.
+      summary: Listar repartidores
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDeliveryPersonList'
+          description: ''
+    post:
+      operationId: delivery_delivery_persons_create
+      description: Registra un nuevo repartidor en el sistema.
+      summary: Crear repartidor
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPersonRegistration'
+          description: ''
+  /api/delivery/delivery-persons/{id}/:
+    get:
+      operationId: delivery_delivery_persons_retrieve
+      description: Obtiene los detalles de un repartidor específico.
+      summary: Obtener repartidor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPerson'
+          description: ''
+    put:
+      operationId: delivery_delivery_persons_update
+      description: Actualiza los datos completos de un repartidor.
+      summary: Actualizar repartidor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPerson'
+          description: ''
+    patch:
+      operationId: delivery_delivery_persons_partial_update
+      description: Actualiza parcialmente los datos de un repartidor.
+      summary: Actualizar parcialmente repartidor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryPersonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryPersonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryPersonRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPerson'
+          description: ''
+    delete:
+      operationId: delivery_delivery_persons_destroy
+      description: ViewSet para repartidores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/delivery/delivery-persons/{id}/active_orders/:
+    get:
+      operationId: delivery_delivery_persons_active_orders_list
+      description: Obtiene los pedidos activos asignados al repartidor.
+      summary: Pedidos activos
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+  /api/delivery/delivery-persons/{id}/earnings/:
+    get:
+      operationId: delivery_delivery_persons_earnings_retrieve
+      description: Obtiene las ganancias totales del repartidor con filtros opcionales
+        por fecha.
+      summary: Ganancias del repartidor
+      parameters:
+      - in: query
+        name: from_date
+        schema:
+          type: string
+          format: date
+        description: Fecha inicial (YYYY-MM-DD)
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      - in: query
+        name: to_date
+        schema:
+          type: string
+          format: date
+        description: Fecha final (YYYY-MM-DD)
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Ganancias del repartidor
+  /api/delivery/delivery-persons/{id}/update_availability/:
+    patch:
+      operationId: delivery_delivery_persons_update_availability_partial_update
+      description: Cambia la disponibilidad actual del repartidor.
+      summary: Cambiar disponibilidad
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryAvailabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryAvailabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryAvailabilityRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Disponibilidad actualizada
+  /api/delivery/delivery-persons/{id}/update_location/:
+    patch:
+      operationId: delivery_delivery_persons_update_location_partial_update
+      description: Actualiza la ubicación geográfica del repartidor.
+      summary: Actualizar ubicación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryLocationUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryLocationUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryLocationUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Ubicación actualizada correctamente
+  /api/delivery/ratings/:
+    get:
+      operationId: delivery_ratings_list
+      description: Obtiene la lista de calificaciones de repartidores para el cliente
+        autenticado.
+      summary: Listar calificaciones
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDeliveryRatingList'
+          description: ''
+    post:
+      operationId: delivery_ratings_create
+      description: Crea una nueva calificación para un repartidor.
+      summary: Crear calificación
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryRatingCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryRatingCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryRatingCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryRating'
+          description: ''
+  /api/delivery/ratings/{id}/:
+    get:
+      operationId: delivery_ratings_retrieve
+      description: ViewSet para calificaciones de repartidores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery rating.
+        required: true
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryRating'
+          description: ''
+    put:
+      operationId: delivery_ratings_update
+      description: ViewSet para calificaciones de repartidores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery rating.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryRatingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryRatingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryRatingRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryRating'
+          description: ''
+    patch:
+      operationId: delivery_ratings_partial_update
+      description: ViewSet para calificaciones de repartidores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery rating.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryRatingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryRatingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDeliveryRatingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryRating'
+          description: ''
+    delete:
+      operationId: delivery_ratings_destroy
+      description: ViewSet para calificaciones de repartidores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery rating.
+        required: true
+      tags:
+      - delivery
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/mobility/drivers/:
+    get:
+      operationId: mobility_drivers_list
+      description: Obtiene la lista de conductores. Los conductores ven su propio
+        perfil, los administradores ven todos, los clientes ven conductores aprobados.
+      summary: Listar conductores
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDriverList'
+          description: ''
+    post:
+      operationId: mobility_drivers_create
+      description: Registra un nuevo conductor en el sistema.
+      summary: Crear conductor
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DriverRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DriverRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverRegistration'
+          description: ''
+  /api/mobility/drivers/{id}/:
+    get:
+      operationId: mobility_drivers_retrieve
+      description: Obtiene los detalles de un conductor específico.
+      summary: Obtener conductor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+    put:
+      operationId: mobility_drivers_update
+      description: Actualiza los datos completos de un conductor.
+      summary: Actualizar conductor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+    patch:
+      operationId: mobility_drivers_partial_update
+      description: Actualiza parcialmente los datos de un conductor.
+      summary: Actualizar parcialmente conductor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
+    delete:
+      operationId: mobility_drivers_destroy
+      description: ViewSet para conductores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/mobility/drivers/{id}/active_trips/:
+    get:
+      operationId: mobility_drivers_active_trips_list
+      description: Obtiene los viajes activos asignados al conductor.
+      summary: Viajes activos
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTripList'
+          description: ''
+  /api/mobility/drivers/{id}/earnings/:
+    get:
+      operationId: mobility_drivers_earnings_retrieve
+      description: Obtiene las ganancias totales del conductor con filtros opcionales
+        por fecha.
+      summary: Ganancias del conductor
+      parameters:
+      - in: query
+        name: from_date
+        schema:
+          type: string
+          format: date
+        description: Fecha inicial (YYYY-MM-DD)
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: to_date
+        schema:
+          type: string
+          format: date
+        description: Fecha final (YYYY-MM-DD)
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Ganancias del conductor
+  /api/mobility/drivers/{id}/update_availability/:
+    patch:
+      operationId: mobility_drivers_update_availability_partial_update
+      description: Cambia la disponibilidad actual del conductor.
+      summary: Cambiar disponibilidad
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverAvailabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverAvailabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverAvailabilityRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Disponibilidad actualizada
+  /api/mobility/drivers/{id}/update_location/:
+    patch:
+      operationId: mobility_drivers_update_location_partial_update
+      description: Actualiza la ubicación geográfica del conductor.
+      summary: Actualizar ubicación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverLocationUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverLocationUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDriverLocationUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Ubicación actualizada correctamente
+  /api/mobility/estimate/:
+    post:
+      operationId: mobility_estimate_create
+      description: Calcula una estimación de precio, distancia y duración para un
+        viaje.
+      summary: Estimar viaje
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripEstimateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TripEstimateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TripEstimateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Estimación del viaje
+  /api/mobility/nearby-drivers/:
+    get:
+      operationId: mobility_nearby_drivers_retrieve
+      description: Obtiene una lista de conductores disponibles cercanos a una ubicación
+        geográfica.
+      summary: Conductores cercanos
+      parameters:
+      - in: query
+        name: latitude
+        schema:
+          type: number
+          format: float
+        description: Latitud de la ubicación
+        required: true
+      - in: query
+        name: longitude
+        schema:
+          type: number
+          format: float
+        description: Longitud de la ubicación
+        required: true
+      - in: query
+        name: radius
+        schema:
+          type: number
+          format: float
+        description: 'Radio de búsqueda en kilómetros (default: 10)'
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Lista de conductores cercanos
+  /api/mobility/ratings/:
+    get:
+      operationId: mobility_ratings_list
+      description: Obtiene la lista de calificaciones de viajes según el perfil del
+        usuario.
+      summary: Listar calificaciones
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTripRatingList'
+          description: ''
+    post:
+      operationId: mobility_ratings_create
+      description: Crea una nueva calificación para un viaje completado.
+      summary: Crear calificación
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripRatingCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TripRatingCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TripRatingCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripRating'
+          description: ''
+  /api/mobility/ratings/{id}/:
+    get:
+      operationId: mobility_ratings_retrieve
+      description: ViewSet para calificaciones de viajes
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripRating'
+          description: ''
+    put:
+      operationId: mobility_ratings_update
+      description: ViewSet para calificaciones de viajes
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripRatingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TripRatingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TripRatingRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripRating'
+          description: ''
+    patch:
+      operationId: mobility_ratings_partial_update
+      description: ViewSet para calificaciones de viajes
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRatingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRatingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRatingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripRating'
+          description: ''
+    delete:
+      operationId: mobility_ratings_destroy
+      description: ViewSet para calificaciones de viajes
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/mobility/trips/:
+    get:
+      operationId: mobility_trips_list
+      description: Obtiene la lista de viajes según el perfil del usuario (cliente,
+        conductor o admin).
+      summary: Listar viajes
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTripList'
+          description: ''
+    post:
+      operationId: mobility_trips_create
+      description: Crea una nueva solicitud de viaje.
+      summary: Crear viaje
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TripCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TripCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripCreate'
+          description: ''
+  /api/mobility/trips/{id}/:
+    get:
+      operationId: mobility_trips_retrieve
+      description: Obtiene los detalles de un viaje específico.
+      summary: Obtener viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+    put:
+      operationId: mobility_trips_update
+      description: Actualiza los datos completos de un viaje.
+      summary: Actualizar viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TripRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TripRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+    patch:
+      operationId: mobility_trips_partial_update
+      description: Actualiza parcialmente los datos de un viaje.
+      summary: Actualizar parcialmente viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+    delete:
+      operationId: mobility_trips_destroy
+      description: ViewSet para viajes
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/mobility/trips/{id}/accept_trip/:
+    patch:
+      operationId: mobility_trips_accept_trip_partial_update
+      description: Permite a un conductor aceptar un viaje solicitado.
+      summary: Aceptar viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+  /api/mobility/trips/{id}/cancel_trip/:
+    patch:
+      operationId: mobility_trips_cancel_trip_partial_update
+      description: Cancela un viaje existente. Puede ser ejecutado por el cliente
+        o el conductor.
+      summary: Cancelar viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+  /api/mobility/trips/{id}/complete_trip/:
+    patch:
+      operationId: mobility_trips_complete_trip_partial_update
+      description: Marca el viaje como completado y libera al conductor.
+      summary: Completar viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+  /api/mobility/trips/{id}/start_trip/:
+    patch:
+      operationId: mobility_trips_start_trip_partial_update
+      description: Marca el viaje como en progreso cuando el conductor ha llegado
+        al punto de recogida.
+      summary: Iniciar viaje
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTripRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+          description: ''
+  /api/notifications/devices/:
+    get:
+      operationId: notifications_devices_list
+      description: Obtiene la lista de dispositivos registrados del usuario.
+      summary: Listar dispositivos
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserDeviceList'
+          description: ''
+    post:
+      operationId: notifications_devices_create
+      description: Registra un nuevo dispositivo FCM para el usuario.
+      summary: Registrar dispositivo
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDeviceCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserDeviceCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserDeviceCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDeviceCreate'
+          description: ''
+  /api/notifications/devices/{id}/:
+    get:
+      operationId: notifications_devices_retrieve
+      description: Obtiene los detalles de un dispositivo específico.
+      summary: Obtener dispositivo
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDevice'
+          description: ''
+    put:
+      operationId: notifications_devices_update
+      description: ViewSet para dispositivos de usuario (tokens FCM)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDeviceCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserDeviceCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserDeviceCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDeviceCreate'
+          description: ''
+    patch:
+      operationId: notifications_devices_partial_update
+      description: ViewSet para dispositivos de usuario (tokens FCM)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDeviceCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDeviceCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDeviceCreateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDeviceCreate'
+          description: ''
+    delete:
+      operationId: notifications_devices_destroy
+      description: ViewSet para dispositivos de usuario (tokens FCM)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/devices/{id}/test_notification/:
+    post:
+      operationId: notifications_devices_test_notification_create
+      description: Envía una notificación de prueba al dispositivo seleccionado.
+      summary: Enviar notificación de prueba
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDeviceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserDeviceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserDeviceRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Notificación de prueba enviada
+  /api/notifications/devices/{id}/toggle_active/:
+    patch:
+      operationId: notifications_devices_toggle_active_partial_update
+      description: Alterna el estado activo/inactivo de un dispositivo.
+      summary: Activar/desactivar dispositivo
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDeviceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDeviceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDeviceRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Estado del dispositivo actualizado
+  /api/notifications/mark-read/{notification_id}/:
+    patch:
+      operationId: notifications_mark_read_partial_update
+      description: Marca una notificación específica como leída usando su ID en la
+        URL.
+      summary: Marcar notificación como leída (por ID)
+      parameters:
+      - in: path
+        name: notification_id
+        schema:
+          type: integer
+        description: ID de la notificación
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Notificación marcada como leída
+  /api/notifications/notifications/:
+    get:
+      operationId: notifications_notifications_list
+      description: Obtiene la lista de notificaciones del usuario autenticado.
+      summary: Listar notificaciones
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationList'
+          description: ''
+    post:
+      operationId: notifications_notifications_create
+      description: Crea una nueva notificación (solo administradores).
+      summary: Crear notificación
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCreate'
+          description: ''
+  /api/notifications/notifications/{id}/:
+    get:
+      operationId: notifications_notifications_retrieve
+      description: Obtiene los detalles de una notificación específica.
+      summary: Obtener notificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    put:
+      operationId: notifications_notifications_update
+      description: ViewSet para notificaciones de usuarios
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    patch:
+      operationId: notifications_notifications_partial_update
+      description: ViewSet para notificaciones de usuarios
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    delete:
+      operationId: notifications_notifications_destroy
+      description: ViewSet para notificaciones de usuarios
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/notifications/{id}/mark_as_read/:
+    patch:
+      operationId: notifications_notifications_mark_as_read_partial_update
+      description: Marca una notificación específica como leída.
+      summary: Marcar como leída
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Notificación marcada como leída
+  /api/notifications/notifications/clear_old/:
+    delete:
+      operationId: notifications_notifications_clear_old_destroy
+      description: Elimina las notificaciones leídas con más de 30 días de antigüedad.
+      summary: Eliminar notificaciones antiguas
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Notificaciones antiguas eliminadas
+  /api/notifications/notifications/mark_all_read/:
+    patch:
+      operationId: notifications_notifications_mark_all_read_partial_update
+      description: Marca todas las notificaciones no leídas del usuario como leídas.
+      summary: Marcar todas como leídas
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Notificaciones marcadas como leídas
+  /api/notifications/notifications/unread_count/:
+    get:
+      operationId: notifications_notifications_unread_count_retrieve
+      description: Obtiene la cantidad de notificaciones no leídas del usuario.
+      summary: Contar no leídas
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Cantidad de notificaciones no leídas
+  /api/notifications/send-bulk/:
+    post:
+      operationId: notifications_send_bulk_create
+      description: Envía una notificación a múltiples usuarios según roles o IDs específicos
+        (solo administradores).
+      summary: Enviar notificación masiva
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BulkNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkNotificationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Notificaciones enviadas
+  /api/orders/:
+    get:
+      operationId: orders_list
+      description: Obtiene el listado de pedidos realizados por el cliente autenticado,
+        incluyendo items, productos e historial de estados.
+      summary: Listar pedidos del cliente
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+    post:
+      operationId: orders_create
+      description: Crea un nuevo pedido con los productos seleccionados. El pedido
+        debe incluir al menos un producto y se calcularán automáticamente subtotal,
+        impuestos y costo de envío.
+      summary: Crear pedido
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/{order_id}/status/:
+    patch:
+      operationId: orders_status_partial_update
+      description: Actualiza el estado de un pedido. Solo el comercio propietario
+        del pedido puede realizarlo. Se guarda un registro en el historial de cambios
+        con el estado anterior y el nuevo.
+      summary: Actualizar estado del pedido
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        description: ID del pedido a actualizar
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '400':
+          description: Estado inválido
+  /api/orders/{id}/:
+    get:
+      operationId: orders_retrieve
+      description: Obtiene los detalles completos de un pedido específico, incluyendo
+        items, productos, información del cliente y del comercio, e historial de estados.
+      summary: Obtener detalle del pedido
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/tracking/{order_number}/:
+    get:
+      operationId: orders_tracking_retrieve
+      description: Obtiene información de seguimiento en tiempo real de un pedido.
+        Accesible para el cliente, el comercio o el repartidor asociado al pedido.
+      summary: Seguimiento de pedido
+      parameters:
+      - in: path
+        name: order_number
+        schema:
+          type: string
+        description: Número único de pedido para seguimiento
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Datos de seguimiento del pedido
+        '404':
+          description: Pedido no encontrado
+  /api/orders/vendor/:
+    get:
+      operationId: orders_vendor_list
+      description: Obtiene el listado de pedidos recibidos por el comercio autenticado,
+        incluyendo items, productos e historial de estados.
+      summary: Listar pedidos del comercio
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+  /api/payments/payment-methods/:
+    get:
+      operationId: payments_payment_methods_list
+      description: Obtiene la lista de métodos de pago disponibles y activos.
+      summary: Listar métodos de pago
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: provider
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: type
+        schema:
+          type: string
+          enum:
+          - bank_transfer
+          - card
+          - cash
+          - digital_wallet
+        description: |-
+          * `cash` - Efectivo
+          * `card` - Tarjeta
+          * `digital_wallet` - Billetera Digital
+          * `bank_transfer` - Transferencia Bancaria
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentMethodList'
+          description: ''
+  /api/payments/payment-methods/{id}/:
+    get:
+      operationId: payments_payment_methods_retrieve
+      description: Obtiene los detalles de un método de pago específico.
+      summary: Obtener método de pago
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this payment method.
+        required: true
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethod'
+          description: ''
+  /api/payments/payments/:
+    get:
+      operationId: payments_payments_list
+      description: Obtiene la lista de pagos del usuario autenticado.
+      summary: Listar pagos
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentList'
+          description: ''
+    post:
+      operationId: payments_payments_create
+      description: Registra un nuevo pago en el sistema.
+      summary: Crear pago
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentCreate'
+          description: ''
+  /api/payments/payments/{id}/:
+    get:
+      operationId: payments_payments_retrieve
+      description: Obtiene los detalles de un pago específico.
+      summary: Obtener pago
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    put:
+      operationId: payments_payments_update
+      description: Actualiza los datos completos de un pago.
+      summary: Actualizar pago
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    patch:
+      operationId: payments_payments_partial_update
+      description: Actualiza parcialmente los datos de un pago.
+      summary: Actualizar parcialmente pago
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    delete:
+      operationId: payments_payments_destroy
+      description: Elimina un registro de pago del sistema.
+      summary: Eliminar pago
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/payments/payments/{id}/receipt/:
+    get:
+      operationId: payments_payments_receipt_retrieve
+      description: Obtiene el recibo o comprobante de un pago realizado.
+      summary: Obtener recibo
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Datos del recibo de pago
+  /api/payments/payments/{id}/refund/:
+    post:
+      operationId: payments_payments_refund_create
+      description: Crea una solicitud de reembolso para un pago completado.
+      summary: Reembolsar pago
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Reembolso creado correctamente
+  /api/payments/payments/statistics/:
+    get:
+      operationId: payments_payments_statistics_retrieve
+      description: Obtiene estadísticas de los pagos realizados por el usuario.
+      summary: Estadísticas de pagos
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Estadísticas de pagos
+  /api/payments/process/:
+    post:
+      operationId: payments_process_create
+      description: Procesa un pago para un pedido o viaje usando el método de pago
+        seleccionado.
+      summary: Procesar pago
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Resultado del procesamiento del pago
+  /api/payments/webhook/mercadopago/:
+    post:
+      operationId: payments_webhook_mercadopago_create
+      description: Endpoint para recibir notificaciones de eventos de pago desde MercadoPago.
+      summary: Webhook MercadoPago
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Firma inválida
+  /api/payments/webhook/stripe/:
+    post:
+      operationId: payments_webhook_stripe_create
+      description: Endpoint para recibir notificaciones de eventos de pago desde Stripe.
+      summary: Webhook Stripe
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: OK
+  /api/vendors/categories/:
+    get:
+      operationId: vendors_categories_list
+      description: Obtiene el listado de todas las categorías de comercios activas.
+      summary: Listar categorías de comercios
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVendorCategoryList'
+          description: ''
+  /api/vendors/categories/{id}/:
+    get:
+      operationId: vendors_categories_retrieve
+      description: Obtiene los detalles de una categoría específica por su ID.
+      summary: Obtener categoría de comercio
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor category.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorCategory'
+          description: ''
+  /api/vendors/products/:
+    get:
+      operationId: vendors_products_list
+      description: Obtiene el listado de productos. Los comerciantes ven sus propios
+        productos; los clientes ven los productos disponibles de comercios abiertos.
+      summary: Listar productos
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Filtrar por categoría del producto
+      - in: query
+        name: is_available
+        schema:
+          type: boolean
+        description: Filtrar por disponibilidad
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Ordenar por price, times_ordered, created_at
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Buscar por nombre o descripción
+      - in: query
+        name: vendor
+        schema:
+          type: integer
+        description: Filtrar por ID del comercio
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+    post:
+      operationId: vendors_products_create
+      description: Crea un nuevo producto asociado al comercio del usuario autenticado.
+      summary: Crear producto
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/vendors/products/{id}/:
+    get:
+      operationId: vendors_products_retrieve
+      description: Obtiene los detalles de un producto específico por su ID.
+      summary: Obtener producto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    put:
+      operationId: vendors_products_update
+      description: Actualiza todos los datos de un producto. Solo el propietario del
+        comercio puede realizarlo.
+      summary: Actualizar producto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCreateUpdate'
+          description: ''
+    patch:
+      operationId: vendors_products_partial_update
+      description: Actualiza parcialmente los datos de un producto. Solo el propietario
+        del comercio puede realizarlo.
+      summary: Actualizar parcialmente producto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductCreateUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCreateUpdate'
+          description: ''
+    delete:
+      operationId: vendors_products_destroy
+      description: Elimina un producto. Solo el propietario del comercio puede realizarlo.
+      summary: Eliminar producto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/vendors/ratings/:
+    get:
+      operationId: vendors_ratings_list
+      description: Obtiene todas las calificaciones realizadas por el cliente autenticado.
+      summary: Listar calificaciones del cliente
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVendorRatingList'
+          description: ''
+    post:
+      operationId: vendors_ratings_create
+      description: Crea una nueva calificación para un comercio. Solo clientes pueden
+        calificar pedidos entregados.
+      summary: Crear calificación
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRatingCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VendorRatingCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VendorRatingCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorRating'
+          description: ''
+  /api/vendors/ratings/{id}/:
+    get:
+      operationId: vendors_ratings_retrieve
+      description: Obtiene los detalles de una calificación específica.
+      summary: Obtener calificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor rating.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorRating'
+          description: ''
+    put:
+      operationId: vendors_ratings_update
+      description: Actualiza una calificación existente.
+      summary: Actualizar calificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor rating.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRatingCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VendorRatingCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VendorRatingCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorRating'
+          description: ''
+    patch:
+      operationId: vendors_ratings_partial_update
+      description: Actualiza parcialmente una calificación existente.
+      summary: Actualizar parcialmente calificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor rating.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRatingCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRatingCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRatingCreateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorRating'
+          description: ''
+    delete:
+      operationId: vendors_ratings_destroy
+      description: Elimina una calificación existente.
+      summary: Eliminar calificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor rating.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/vendors/vendors/:
+    get:
+      operationId: vendors_vendors_list
+      description: Obtiene el listado de comercios aprobados. Soporta filtros por
+        categoría, estado, disponibilidad, búsqueda y ordenamiento.
+      summary: Listar comercios
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+        description: Filtrar por ID de categoría
+      - in: query
+        name: is_open
+        schema:
+          type: boolean
+        description: Filtrar por comercios abiertos/cerrados
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Ordenar por rating, delivery_time, delivery_fee, created_at.
+          Prefijo - para descendente.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Buscar por nombre del comercio, descripción o categoría
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Filtrar por estado (approved, pending, rejected)
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVendorListList'
+          description: ''
+    post:
+      operationId: vendors_vendors_create
+      description: Registra un nuevo comercio asociado al usuario autenticado. El
+        comercio quedará pendiente de aprobación.
+      summary: Registrar comercio
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VendorRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VendorRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+  /api/vendors/vendors/{id}/:
+    get:
+      operationId: vendors_vendors_retrieve
+      description: Obtiene los detalles completos de un comercio específico por su
+        ID.
+      summary: Obtener comercio
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    put:
+      operationId: vendors_vendors_update
+      description: Actualiza todos los datos de un comercio. Solo el propietario del
+        comercio puede realizarlo.
+      summary: Actualizar comercio
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    patch:
+      operationId: vendors_vendors_partial_update
+      description: Actualiza parcialmente los datos de un comercio. Solo el propietario
+        del comercio puede realizarlo.
+      summary: Actualizar parcialmente comercio
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    delete:
+      operationId: vendors_vendors_destroy
+      description: Elimina un comercio. Solo el propietario del comercio puede realizarlo.
+      summary: Eliminar comercio
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/vendors/vendors/{id}/products/:
+    get:
+      operationId: vendors_vendors_products_list
+      description: Obtiene el listado de productos disponibles de un comercio específico.
+        Soporta filtros opcionales por categoría y búsqueda por nombre o descripción.
+      summary: Obtener productos de un comercio
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Filtrar productos por categoría
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      - in: query
+        name: is_open
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Buscar productos por nombre o descripción
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - approved
+          - pending
+          - rejected
+          - suspended
+        description: |-
+          * `pending` - Pendiente
+          * `approved` - Aprobado
+          * `suspended` - Suspendido
+          * `rejected` - Rechazado
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+  /api/vendors/vendors/{id}/ratings/:
+    get:
+      operationId: vendors_vendors_ratings_list
+      description: Obtiene todas las calificaciones y comentarios de un comercio específico,
+        ordenadas por fecha de creación descendente.
+      summary: Obtener calificaciones de un comercio
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      - in: query
+        name: is_open
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - approved
+          - pending
+          - rejected
+          - suspended
+        description: |-
+          * `pending` - Pendiente
+          * `approved` - Aprobado
+          * `suspended` - Suspendido
+          * `rejected` - Rechazado
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVendorRatingList'
+          description: ''
+  /api/vendors/vendors/{id}/toggle_status/:
+    patch:
+      operationId: vendors_vendors_toggle_status_partial_update
+      description: Alterna el estado de apertura de un comercio (abierto/cerrado).
+        Solo el propietario del comercio puede realizarlo.
+      summary: Abrir/cerrar comercio
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this vendor.
+        required: true
+      tags:
+      - vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: Estado actualizado correctamente
+  /api/vendors/vendors/nearby/:
+    get:
+      operationId: vendors_vendors_nearby_list
+      description: Obtiene los comercios abiertos cercanos a una ubicación basada
+        en coordenadas de latitud y longitud.
+      summary: Obtener comercios cercanos
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: is_open
+        schema:
+          type: boolean
+      - in: query
+        name: latitude
+        schema:
+          type: number
+          format: float
+        description: Latitud de la ubicación de referencia
+        required: true
+      - in: query
+        name: longitude
+        schema:
+          type: number
+          format: float
+        description: Longitud de la ubicación de referencia
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - approved
+          - pending
+          - rejected
+          - suspended
+        description: |-
+          * `pending` - Pendiente
+          * `approved` - Aprobado
+          * `suspended` - Suspendido
+          * `rejected` - Rechazado
+      tags:
+      - vendors
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVendorListList'
+          description: ''
+components:
+  schemas:
+    AvailabilityEnum:
+      enum:
+      - available
+      - busy
+      - offline
+      type: string
+      description: |-
+        * `available` - Disponible
+        * `busy` - Ocupado
+        * `offline` - Desconectado
+    BulkNotificationRequest:
+      type: object
+      description: Serializer para notificaciones masivas
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+        user_roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRolesEnum'
+        user_ids:
+          type: array
+          items:
+            type: integer
+        data: {}
+      required:
+      - body
+      - title
+    ChangePassword:
+      type: object
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+          minLength: 8
+      required:
+      - new_password
+      - old_password
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          minLength: 8
+      required:
+      - new_password
+      - old_password
+    CreateOrderRequest:
+      type: object
+      description: Serializer para crear nuevos pedidos
+      properties:
+        vendor:
+          type: integer
+        delivery_address:
+          type: string
+          minLength: 1
+        delivery_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        delivery_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        customer_notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemRequest'
+      required:
+      - delivery_address
+      - items
+      - vendor
+    Customer:
+      type: object
+      description: Serializer para perfil de cliente
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_info:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        loyalty_points:
+          type: integer
+          readOnly: true
+        preferred_payment_method:
+          $ref: '#/components/schemas/PreferredPaymentMethodEnum'
+        is_premium:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - loyalty_points
+      - user_info
+    CustomerAddress:
+      type: object
+      description: Serializer para direcciones del cliente
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        label:
+          type: string
+          description: 'Ej: Casa, Trabajo, etc.'
+          maxLength: 50
+        street_address:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        postal_code:
+          type: string
+          maxLength: 20
+        country:
+          type: string
+          maxLength: 100
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - city
+      - created_at
+      - id
+      - label
+      - postal_code
+      - state
+      - street_address
+    CustomerAddressRequest:
+      type: object
+      description: Serializer para direcciones del cliente
+      properties:
+        label:
+          type: string
+          minLength: 1
+          description: 'Ej: Casa, Trabajo, etc.'
+          maxLength: 50
+        street_address:
+          type: string
+          minLength: 1
+          maxLength: 255
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+        state:
+          type: string
+          minLength: 1
+          maxLength: 100
+        postal_code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        is_default:
+          type: boolean
+      required:
+      - city
+      - label
+      - postal_code
+      - state
+      - street_address
+    CustomerRequest:
+      type: object
+      description: Serializer para perfil de cliente
+      properties:
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        preferred_payment_method:
+          $ref: '#/components/schemas/PreferredPaymentMethodEnum'
+        is_premium:
+          type: boolean
+    DeliveryPerson:
+      type: object
+      description: Serializer para repartidores
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_info:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        license_number:
+          type: string
+          maxLength: 50
+        vehicle_type:
+          type: string
+          maxLength: 50
+        vehicle_plate:
+          type: string
+          maxLength: 20
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status80bEnum'
+          readOnly: true
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+          readOnly: true
+        total_deliveries:
+          type: integer
+          readOnly: true
+        total_earnings:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - license_number
+      - rating
+      - status
+      - total_deliveries
+      - total_earnings
+      - user_info
+      - vehicle_plate
+      - vehicle_type
+    DeliveryPersonRegistration:
+      type: object
+      description: Serializer para registro de repartidores
+      properties:
+        license_number:
+          type: string
+          maxLength: 50
+        vehicle_type:
+          type: string
+          maxLength: 50
+        vehicle_plate:
+          type: string
+          maxLength: 20
+      required:
+      - license_number
+      - vehicle_plate
+      - vehicle_type
+    DeliveryPersonRegistrationRequest:
+      type: object
+      description: Serializer para registro de repartidores
+      properties:
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_plate:
+          type: string
+          minLength: 1
+          maxLength: 20
+      required:
+      - license_number
+      - vehicle_plate
+      - vehicle_type
+    DeliveryPersonRequest:
+      type: object
+      description: Serializer para repartidores
+      properties:
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_plate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+      required:
+      - license_number
+      - vehicle_plate
+      - vehicle_type
+    DeliveryRating:
+      type: object
+      description: Serializer para calificaciones de repartidores
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        order_number:
+          type: string
+          readOnly: true
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - customer_name
+      - id
+      - order_number
+      - rating
+    DeliveryRatingCreateRequest:
+      type: object
+      description: Serializer para crear calificaciones de repartidores
+      properties:
+        delivery_person:
+          type: integer
+        order:
+          type: integer
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+      required:
+      - delivery_person
+      - order
+      - rating
+    DeliveryRatingRequest:
+      type: object
+      description: Serializer para calificaciones de repartidores
+      properties:
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+      required:
+      - rating
+    Driver:
+      type: object
+      description: Serializer completo para conductores
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_info:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        license_number:
+          type: string
+          maxLength: 50
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        vehicle_brand:
+          type: string
+          maxLength: 50
+        vehicle_model:
+          type: string
+          maxLength: 50
+        vehicle_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vehicle_plate:
+          type: string
+          maxLength: 20
+        vehicle_color:
+          type: string
+          maxLength: 30
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status80bEnum'
+          readOnly: true
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+          readOnly: true
+        total_trips:
+          type: integer
+          readOnly: true
+        total_earnings:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - license_number
+      - rating
+      - status
+      - total_earnings
+      - total_trips
+      - user_info
+      - vehicle_brand
+      - vehicle_color
+      - vehicle_model
+      - vehicle_plate
+      - vehicle_type
+      - vehicle_year
+    DriverRegistration:
+      type: object
+      description: Serializer para registro de conductores
+      properties:
+        license_number:
+          type: string
+          maxLength: 50
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        vehicle_brand:
+          type: string
+          maxLength: 50
+        vehicle_model:
+          type: string
+          maxLength: 50
+        vehicle_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vehicle_plate:
+          type: string
+          maxLength: 20
+        vehicle_color:
+          type: string
+          maxLength: 30
+      required:
+      - license_number
+      - vehicle_brand
+      - vehicle_color
+      - vehicle_model
+      - vehicle_plate
+      - vehicle_type
+      - vehicle_year
+    DriverRegistrationRequest:
+      type: object
+      description: Serializer para registro de conductores
+      properties:
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        vehicle_brand:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_model:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vehicle_plate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        vehicle_color:
+          type: string
+          minLength: 1
+          maxLength: 30
+      required:
+      - license_number
+      - vehicle_brand
+      - vehicle_color
+      - vehicle_model
+      - vehicle_plate
+      - vehicle_type
+      - vehicle_year
+    DriverRequest:
+      type: object
+      description: Serializer completo para conductores
+      properties:
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        vehicle_brand:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_model:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vehicle_plate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        vehicle_color:
+          type: string
+          minLength: 1
+          maxLength: 30
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+      required:
+      - license_number
+      - vehicle_brand
+      - vehicle_color
+      - vehicle_model
+      - vehicle_plate
+      - vehicle_type
+      - vehicle_year
+    LoginRequest:
+      type: object
+      description: Serializer para autenticación JWT que acepta username o email.
+      properties:
+        username_or_email:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        user_type:
+          type: string
+          minLength: 1
+      required:
+      - password
+      - user_type
+      - username_or_email
+    Notification:
+      type: object
+      description: Serializer para notificaciones
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        notification_type_info:
+          allOf:
+          - $ref: '#/components/schemas/NotificationType'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+        data: {}
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        time_ago:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - body
+      - created_at
+      - id
+      - notification_type_info
+      - sent_at
+      - status_display
+      - time_ago
+      - title
+    NotificationCreate:
+      type: object
+      description: Serializer para crear notificaciones
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+        data: {}
+      required:
+      - body
+      - title
+    NotificationCreateRequest:
+      type: object
+      description: Serializer para crear notificaciones
+      properties:
+        user_id:
+          type: integer
+          writeOnly: true
+        notification_type_id:
+          type: integer
+          writeOnly: true
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+        data: {}
+      required:
+      - body
+      - notification_type_id
+      - title
+      - user_id
+    NotificationRequest:
+      type: object
+      description: Serializer para notificaciones
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+        data: {}
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - body
+      - title
+    NotificationStatusEnum:
+      enum:
+      - pending
+      - sent
+      - delivered
+      - read
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pendiente
+        * `sent` - Enviada
+        * `delivered` - Entregada
+        * `read` - Leída
+        * `failed` - Fallida
+    NotificationType:
+      type: object
+      description: Serializer para tipos de notificaciones
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        template_title:
+          type: string
+          maxLength: 200
+        template_body:
+          type: string
+        is_active:
+          type: boolean
+      required:
+      - id
+      - name
+      - template_body
+      - template_title
+    NotificationTypeRequest:
+      type: object
+      description: Serializer para tipos de notificaciones
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        template_title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        template_body:
+          type: string
+          minLength: 1
+        is_active:
+          type: boolean
+      required:
+      - name
+      - template_body
+      - template_title
+    ObjectTypeEnum:
+      enum:
+      - order
+      - trip
+      type: string
+      description: |-
+        * `order` - Pedido
+        * `trip` - Viaje
+    Order:
+      type: object
+      description: Serializer básico para pedidos (para repartidores)
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order_number:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        customer_name:
+          type: string
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        delivery_address:
+          type: string
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        delivery_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        estimated_delivery_time:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - customer_name
+      - delivery_address
+      - id
+      - order_number
+      - total_amount
+      - vendor_name
+    OrderItemRequest:
+      type: object
+      description: Serializer para items del pedido
+      properties:
+        product_id:
+          type: integer
+          writeOnly: true
+        quantity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        special_instructions:
+          type: string
+      required:
+      - product_id
+      - quantity
+    OrderStatusEnum:
+      enum:
+      - pending
+      - confirmed
+      - preparing
+      - ready
+      - on_route
+      - delivered
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pendiente
+        * `confirmed` - Confirmado
+        * `preparing` - Preparando
+        * `ready` - Listo
+        * `on_route` - En camino
+        * `delivered` - Entregado
+        * `cancelled` - Cancelado
+    PaginatedCustomerAddressList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerAddress'
+    PaginatedDeliveryPersonList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryPerson'
+    PaginatedDeliveryRatingList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryRating'
+    PaginatedDriverList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+    PaginatedNotificationList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+    PaginatedOrderList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PaginatedPaymentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+    PaginatedPaymentMethodList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethod'
+    PaginatedProductList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaginatedTripList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trip'
+    PaginatedTripRatingList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TripRating'
+    PaginatedUserDeviceList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDevice'
+    PaginatedVendorCategoryList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorCategory'
+    PaginatedVendorListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorList'
+    PaginatedVendorRatingList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorRating'
+    PasswordResetConfirmRequest:
+      type: object
+      properties:
+        new_password:
+          type: string
+          minLength: 8
+        new_password_confirm:
+          type: string
+          minLength: 1
+      required:
+      - new_password
+      - new_password_confirm
+    PasswordResetRequestRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    PatchedChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          minLength: 8
+    PatchedCustomerAddressRequest:
+      type: object
+      description: Serializer para direcciones del cliente
+      properties:
+        label:
+          type: string
+          minLength: 1
+          description: 'Ej: Casa, Trabajo, etc.'
+          maxLength: 50
+        street_address:
+          type: string
+          minLength: 1
+          maxLength: 255
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+        state:
+          type: string
+          minLength: 1
+          maxLength: 100
+        postal_code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        country:
+          type: string
+          minLength: 1
+          maxLength: 100
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+        is_default:
+          type: boolean
+    PatchedCustomerRequest:
+      type: object
+      description: Serializer para perfil de cliente
+      properties:
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        preferred_payment_method:
+          $ref: '#/components/schemas/PreferredPaymentMethodEnum'
+        is_premium:
+          type: boolean
+    PatchedDeliveryAvailabilityRequest:
+      type: object
+      description: Serializer para cambiar disponibilidad
+      properties:
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+    PatchedDeliveryLocationUpdateRequest:
+      type: object
+      description: Serializer para actualizar ubicación
+      properties:
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+    PatchedDeliveryPersonRequest:
+      type: object
+      description: Serializer para repartidores
+      properties:
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_plate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+    PatchedDeliveryRatingRequest:
+      type: object
+      description: Serializer para calificaciones de repartidores
+      properties:
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+    PatchedDriverAvailabilityRequest:
+      type: object
+      description: Serializer para cambiar disponibilidad
+      properties:
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+    PatchedDriverLocationUpdateRequest:
+      type: object
+      description: Serializer para actualizar ubicación
+      properties:
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+    PatchedDriverRequest:
+      type: object
+      description: Serializer completo para conductores
+      properties:
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        vehicle_brand:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_model:
+          type: string
+          minLength: 1
+          maxLength: 50
+        vehicle_year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vehicle_plate:
+          type: string
+          minLength: 1
+          maxLength: 20
+        vehicle_color:
+          type: string
+          minLength: 1
+          maxLength: 30
+        availability:
+          $ref: '#/components/schemas/AvailabilityEnum'
+        current_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+          nullable: true
+        current_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+          nullable: true
+    PatchedNotificationRequest:
+      type: object
+      description: Serializer para notificaciones
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+        data: {}
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+    PatchedPaymentRequest:
+      type: object
+      description: Serializer completo para pagos
+      properties:
+        external_payment_id:
+          type: string
+          maxLength: 200
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+        metadata: {}
+        failure_reason:
+          type: string
+    PatchedProductCreateUpdateRequest:
+      type: object
+      description: Serializer para crear/actualizar productos
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        image:
+          type: string
+          format: binary
+          nullable: true
+        category:
+          type: string
+          minLength: 1
+          maxLength: 100
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_available:
+          type: boolean
+    PatchedTripRatingRequest:
+      type: object
+      description: Serializer para calificaciones de viajes
+      properties:
+        rating_type:
+          $ref: '#/components/schemas/RatingTypeEnum'
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+    PatchedTripRequest:
+      type: object
+      description: Serializer completo para viajes
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusC87Enum'
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+        pickup_address:
+          type: string
+          minLength: 1
+        pickup_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        pickup_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        destination_address:
+          type: string
+          minLength: 1
+        destination_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        destination_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        estimated_distance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        actual_distance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        actual_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        base_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        distance_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        time_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        surge_multiplier:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        total_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        customer_notes:
+          type: string
+    PatchedUserDeviceCreateRequest:
+      type: object
+      description: Serializer para crear/actualizar dispositivos
+      properties:
+        fcm_token:
+          type: string
+          minLength: 1
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        device_id:
+          type: string
+          maxLength: 200
+        app_version:
+          type: string
+          maxLength: 20
+    PatchedUserDeviceRequest:
+      type: object
+      description: Serializer para dispositivos de usuario
+      properties:
+        fcm_token:
+          type: string
+          minLength: 1
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        device_id:
+          type: string
+          maxLength: 200
+        app_version:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+    PatchedUserRequest:
+      type: object
+      description: Serializer para información básica del usuario
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          minLength: 1
+          description: Número de teléfono con código de país
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        status:
+          $ref: '#/components/schemas/UserStatusEnum'
+        profile_picture:
+          type: string
+          format: binary
+          nullable: true
+        email_verified:
+          type: boolean
+        phone_verified:
+          type: boolean
+    PatchedVendorRatingCreateRequest:
+      type: object
+      description: Serializer para crear calificaciones
+      properties:
+        vendor:
+          type: integer
+        order:
+          type: integer
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+    PatchedVendorRequest:
+      type: object
+      description: Serializer completo para comercios
+      properties:
+        business_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        address:
+          type: string
+          minLength: 1
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        delivery_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        minimum_order:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        delivery_time:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        delivery_radius:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_open:
+          type: boolean
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+    Payment:
+      type: object
+      description: Serializer completo para pagos
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        payment_id:
+          type: string
+          readOnly: true
+        external_payment_id:
+          type: string
+          maxLength: 200
+        user_info:
+          type: string
+          readOnly: true
+        payment_method_info:
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethod'
+          readOnly: true
+        object_info:
+          type: string
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        commission:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        net_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+        status_display:
+          type: string
+          readOnly: true
+        metadata: {}
+        failure_reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - amount
+      - commission
+      - completed_at
+      - created_at
+      - id
+      - net_amount
+      - object_info
+      - payment_id
+      - payment_method_info
+      - status_display
+      - updated_at
+      - user_info
+    PaymentCreate:
+      type: object
+      description: Serializer para crear pagos
+      properties:
+        payment_method:
+          type: integer
+        metadata: {}
+      required:
+      - payment_method
+    PaymentCreateRequest:
+      type: object
+      description: Serializer para crear pagos
+      properties:
+        object_type:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeEnum'
+          writeOnly: true
+        object_id:
+          type: integer
+          writeOnly: true
+        payment_method:
+          type: integer
+        metadata: {}
+      required:
+      - object_id
+      - object_type
+      - payment_method
+    PaymentMethod:
+      type: object
+      description: Serializer para métodos de pago
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        type_display:
+          type: string
+          readOnly: true
+        provider:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        commission_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+      required:
+      - id
+      - name
+      - type
+      - type_display
+    PaymentMethodRequest:
+      type: object
+      description: Serializer para métodos de pago
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        provider:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+        commission_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+      required:
+      - name
+      - type
+    PaymentRequest:
+      type: object
+      description: Serializer completo para pagos
+      properties:
+        external_payment_id:
+          type: string
+          maxLength: 200
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+        metadata: {}
+        failure_reason:
+          type: string
+      required:
+      - amount
+    PaymentStatusEnum:
+      enum:
+      - pending
+      - processing
+      - completed
+      - failed
+      - cancelled
+      - refunded
+      type: string
+      description: |-
+        * `pending` - Pendiente
+        * `processing` - Procesando
+        * `completed` - Completado
+        * `failed` - Fallido
+        * `cancelled` - Cancelado
+        * `refunded` - Reembolsado
+    PlatformEnum:
+      enum:
+      - android
+      - ios
+      - web
+      type: string
+      description: |-
+        * `android` - Android
+        * `ios` - iOS
+        * `web` - Web
+    PreferredPaymentMethodEnum:
+      enum:
+      - cash
+      - card
+      - digital_wallet
+      type: string
+      description: |-
+        * `cash` - Efectivo
+        * `card` - Tarjeta
+        * `digital_wallet` - Billetera Digital
+    ProcessPaymentRequest:
+      type: object
+      description: Serializer para procesar pagos
+      properties:
+        object_type:
+          $ref: '#/components/schemas/ObjectTypeEnum'
+        object_id:
+          type: integer
+        payment_method_id:
+          type: integer
+        payment_data: {}
+      required:
+      - object_id
+      - object_type
+      - payment_method_id
+    Product:
+      type: object
+      description: Serializer para productos
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        image:
+          type: string
+          format: uri
+          nullable: true
+        category:
+          type: string
+          maxLength: 100
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_available:
+          type: boolean
+        times_ordered:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category
+      - created_at
+      - id
+      - name
+      - price
+      - times_ordered
+      - vendor_name
+    ProductCreateUpdate:
+      type: object
+      description: Serializer para crear/actualizar productos
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        image:
+          type: string
+          format: uri
+          nullable: true
+        category:
+          type: string
+          maxLength: 100
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_available:
+          type: boolean
+      required:
+      - category
+      - name
+      - price
+    ProductCreateUpdateRequest:
+      type: object
+      description: Serializer para crear/actualizar productos
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        image:
+          type: string
+          format: binary
+          nullable: true
+        category:
+          type: string
+          minLength: 1
+          maxLength: 100
+        stock:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_available:
+          type: boolean
+      required:
+      - category
+      - name
+      - price
+    ProductRequest:
+      type: object
+      description: Serializer para productos
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        image:
+          type: string
+          format: binary
+          nullable: true
+        is_available:
+          type: boolean
+        category:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - category
+      - name
+      - price
+    RatingTypeEnum:
+      enum:
+      - customer_to_driver
+      - driver_to_customer
+      type: string
+      description: |-
+        * `customer_to_driver` - Cliente a Conductor
+        * `driver_to_customer` - Conductor a Cliente
+    RoleEnum:
+      enum:
+      - customer
+      - vendor
+      - delivery
+      - admin
+      type: string
+      description: |-
+        * `customer` - Cliente
+        * `vendor` - Comercio
+        * `delivery` - Repartidor
+        * `admin` - Administrador
+    Status80bEnum:
+      enum:
+      - pending
+      - approved
+      - suspended
+      - rejected
+      type: string
+      description: |-
+        * `pending` - Pendiente
+        * `approved` - Aprobado
+        * `suspended` - Suspendido
+        * `rejected` - Rechazado
+    StatusC87Enum:
+      enum:
+      - requested
+      - accepted
+      - driver_arrived
+      - in_progress
+      - completed
+      - cancelled_customer
+      - cancelled_driver
+      type: string
+      description: |-
+        * `requested` - Solicitado
+        * `accepted` - Aceptado
+        * `driver_arrived` - Conductor llegó
+        * `in_progress` - En progreso
+        * `completed` - Completado
+        * `cancelled_customer` - Cancelado por cliente
+        * `cancelled_driver` - Cancelado por conductor
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    TokenVerifyRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - token
+    Trip:
+      type: object
+      description: Serializer completo para viajes
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        trip_number:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusC87Enum'
+        status_display:
+          type: string
+          readOnly: true
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+        customer_info:
+          type: string
+          readOnly: true
+        driver_info:
+          type: string
+          readOnly: true
+        pickup_address:
+          type: string
+        pickup_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        pickup_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        destination_address:
+          type: string
+        destination_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        destination_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        estimated_distance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        actual_distance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        actual_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        base_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        distance_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        time_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        surge_multiplier:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        total_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        customer_notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        accepted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - accepted_at
+      - cancelled_at
+      - completed_at
+      - created_at
+      - customer_info
+      - destination_address
+      - destination_latitude
+      - destination_longitude
+      - driver_info
+      - id
+      - pickup_address
+      - pickup_latitude
+      - pickup_longitude
+      - started_at
+      - status_display
+      - total_fare
+      - trip_number
+    TripCreate:
+      type: object
+      description: Serializer para crear viajes
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusC87Enum'
+          readOnly: true
+        total_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          readOnly: true
+        pickup_address:
+          type: string
+        pickup_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        pickup_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        destination_address:
+          type: string
+        destination_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        destination_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        customer_notes:
+          type: string
+      required:
+      - destination_address
+      - destination_latitude
+      - destination_longitude
+      - id
+      - pickup_address
+      - pickup_latitude
+      - pickup_longitude
+      - status
+      - total_fare
+    TripCreateRequest:
+      type: object
+      description: Serializer para crear viajes
+      properties:
+        pickup_address:
+          type: string
+          minLength: 1
+        pickup_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        pickup_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        destination_address:
+          type: string
+          minLength: 1
+        destination_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        destination_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        customer_notes:
+          type: string
+      required:
+      - destination_address
+      - destination_latitude
+      - destination_longitude
+      - pickup_address
+      - pickup_latitude
+      - pickup_longitude
+    TripEstimateRequest:
+      type: object
+      description: Serializer para estimaciones de viaje
+      properties:
+        pickup_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        pickup_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        destination_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        destination_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        vehicle_type:
+          allOf:
+          - $ref: '#/components/schemas/VehicleTypeEnum'
+          default: car
+      required:
+      - destination_latitude
+      - destination_longitude
+      - pickup_latitude
+      - pickup_longitude
+    TripRating:
+      type: object
+      description: Serializer para calificaciones de viajes
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        trip_info:
+          type: string
+          readOnly: true
+        rating_type:
+          $ref: '#/components/schemas/RatingTypeEnum'
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - rating
+      - rating_type
+      - trip_info
+    TripRatingCreateRequest:
+      type: object
+      description: Serializer para crear calificaciones
+      properties:
+        trip:
+          type: integer
+        rating_type:
+          $ref: '#/components/schemas/RatingTypeEnum'
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+      required:
+      - rating
+      - rating_type
+      - trip
+    TripRatingRequest:
+      type: object
+      description: Serializer para calificaciones de viajes
+      properties:
+        rating_type:
+          $ref: '#/components/schemas/RatingTypeEnum'
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+      required:
+      - rating
+      - rating_type
+    TripRequest:
+      type: object
+      description: Serializer completo para viajes
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusC87Enum'
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+        pickup_address:
+          type: string
+          minLength: 1
+        pickup_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        pickup_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        destination_address:
+          type: string
+          minLength: 1
+        destination_latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        destination_longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        estimated_distance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        actual_distance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        actual_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        base_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        distance_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        time_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        surge_multiplier:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        total_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        customer_notes:
+          type: string
+      required:
+      - destination_address
+      - destination_latitude
+      - destination_longitude
+      - pickup_address
+      - pickup_latitude
+      - pickup_longitude
+      - total_fare
+    TypeEnum:
+      enum:
+      - cash
+      - card
+      - digital_wallet
+      - bank_transfer
+      type: string
+      description: |-
+        * `cash` - Efectivo
+        * `card` - Tarjeta
+        * `digital_wallet` - Billetera Digital
+        * `bank_transfer` - Transferencia Bancaria
+    User:
+      type: object
+      description: Serializer para información básica del usuario
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Número de teléfono con código de país
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+          description: |-
+            Rol del usuario en el sistema
+
+            * `customer` - Cliente
+            * `vendor` - Comercio
+            * `delivery` - Repartidor
+            * `admin` - Administrador
+        status:
+          $ref: '#/components/schemas/UserStatusEnum'
+        profile_picture:
+          type: string
+          format: uri
+          nullable: true
+        email_verified:
+          type: boolean
+        phone_verified:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - phone_number
+      - role
+      - username
+    UserDevice:
+      type: object
+      description: Serializer para dispositivos de usuario
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        fcm_token:
+          type: string
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        platform_display:
+          type: string
+          readOnly: true
+        device_id:
+          type: string
+          maxLength: 200
+        app_version:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_used:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - fcm_token
+      - id
+      - last_used
+      - platform
+      - platform_display
+    UserDeviceCreate:
+      type: object
+      description: Serializer para crear/actualizar dispositivos
+      properties:
+        fcm_token:
+          type: string
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        device_id:
+          type: string
+          maxLength: 200
+        app_version:
+          type: string
+          maxLength: 20
+      required:
+      - fcm_token
+      - platform
+    UserDeviceCreateRequest:
+      type: object
+      description: Serializer para crear/actualizar dispositivos
+      properties:
+        fcm_token:
+          type: string
+          minLength: 1
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        device_id:
+          type: string
+          maxLength: 200
+        app_version:
+          type: string
+          maxLength: 20
+      required:
+      - fcm_token
+      - platform
+    UserDeviceRequest:
+      type: object
+      description: Serializer para dispositivos de usuario
+      properties:
+        fcm_token:
+          type: string
+          minLength: 1
+        platform:
+          $ref: '#/components/schemas/PlatformEnum'
+        device_id:
+          type: string
+          maxLength: 200
+        app_version:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+      required:
+      - fcm_token
+      - platform
+    UserRegistration:
+      type: object
+      description: Serializer para registro de usuarios
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          description: Número de teléfono con código de país
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            Rol del usuario en el sistema
+
+            * `customer` - Cliente
+            * `vendor` - Comercio
+            * `delivery` - Repartidor
+            * `admin` - Administrador
+      required:
+      - phone_number
+      - username
+    UserRegistrationRequest:
+      type: object
+      description: Serializer para registro de usuarios
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        password_confirm:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          minLength: 1
+          description: Número de teléfono con código de país
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            Rol del usuario en el sistema
+
+            * `customer` - Cliente
+            * `vendor` - Comercio
+            * `delivery` - Repartidor
+            * `admin` - Administrador
+      required:
+      - password
+      - password_confirm
+      - phone_number
+      - username
+    UserRequest:
+      type: object
+      description: Serializer para información básica del usuario
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          minLength: 1
+          description: Número de teléfono con código de país
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        status:
+          $ref: '#/components/schemas/UserStatusEnum'
+        profile_picture:
+          type: string
+          format: binary
+          nullable: true
+        email_verified:
+          type: boolean
+        phone_verified:
+          type: boolean
+      required:
+      - phone_number
+      - username
+    UserRolesEnum:
+      enum:
+      - customer
+      - vendor
+      - delivery
+      - admin
+      type: string
+      description: |-
+        * `customer` - Cliente
+        * `vendor` - Comercio
+        * `delivery` - Repartidor
+        * `admin` - Administrador
+    UserStatusEnum:
+      enum:
+      - active
+      - inactive
+      - suspended
+      type: string
+      description: |-
+        * `active` - Activo
+        * `inactive` - Inactivo
+        * `suspended` - Suspendido
+    VehicleTypeEnum:
+      enum:
+      - car
+      - motorcycle
+      - van
+      type: string
+      description: |-
+        * `car` - Auto
+        * `motorcycle` - Moto
+        * `van` - Camioneta
+    Vendor:
+      type: object
+      description: Serializer completo para comercios
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_info:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        business_name:
+          type: string
+          maxLength: 200
+        category_info:
+          allOf:
+          - $ref: '#/components/schemas/VendorCategory'
+          readOnly: true
+        description:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        delivery_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        minimum_order:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        delivery_time:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        delivery_radius:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+          readOnly: true
+        total_orders:
+          type: integer
+          readOnly: true
+        is_open:
+          type: boolean
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status80bEnum'
+          readOnly: true
+      required:
+      - address
+      - business_name
+      - category_info
+      - closing_time
+      - id
+      - latitude
+      - longitude
+      - opening_time
+      - rating
+      - status
+      - total_orders
+      - user_info
+    VendorCategory:
+      type: object
+      description: Serializer para categorías de comercios
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        icon:
+          type: string
+          format: uri
+          nullable: true
+        is_active:
+          type: boolean
+      required:
+      - id
+      - name
+    VendorCategoryRequest:
+      type: object
+      description: Serializer para categorías de comercios
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+        icon:
+          type: string
+          format: binary
+          nullable: true
+        is_active:
+          type: boolean
+      required:
+      - name
+    VendorList:
+      type: object
+      description: Serializer para listado de comercios (vista resumida)
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        business_name:
+          type: string
+          maxLength: 200
+        category_name:
+          type: string
+          readOnly: true
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        delivery_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        delivery_time:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_open:
+          type: boolean
+        minimum_order:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+      required:
+      - business_name
+      - category_name
+      - id
+    VendorRating:
+      type: object
+      description: Serializer para calificaciones de comercios
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        order_number:
+          type: string
+          readOnly: true
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - customer_name
+      - id
+      - order_number
+      - rating
+    VendorRatingCreateRequest:
+      type: object
+      description: Serializer para crear calificaciones
+      properties:
+        vendor:
+          type: integer
+        order:
+          type: integer
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+      required:
+      - order
+      - rating
+      - vendor
+    VendorRegistrationRequest:
+      type: object
+      description: Serializer para registro de nuevos comercios
+      properties:
+        business_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        category:
+          type: integer
+        description:
+          type: string
+        business_license:
+          type: string
+          minLength: 1
+          maxLength: 100
+        tax_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        address:
+          type: string
+          minLength: 1
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        delivery_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        minimum_order:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        delivery_time:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        delivery_radius:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+      required:
+      - address
+      - business_license
+      - business_name
+      - category
+      - closing_time
+      - latitude
+      - longitude
+      - opening_time
+      - tax_id
+    VendorRequest:
+      type: object
+      description: Serializer completo para comercios
+      properties:
+        business_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        address:
+          type: string
+          minLength: 1
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,2}(?:\.\d{0,8})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,8})?$
+        delivery_fee:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
+        minimum_order:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        delivery_time:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        delivery_radius:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_open:
+          type: boolean
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+      required:
+      - address
+      - business_name
+      - closing_time
+      - latitude
+      - longitude
+      - opening_time
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: auth
+  description: Autenticación y registro de usuarios
+- name: customers
+  description: Perfiles y direcciones de clientes
+- name: vendors
+  description: Tiendas, productos y categorías
+- name: orders
+  description: Pedidos y seguimiento
+- name: delivery
+  description: Repartidores y entregas
+- name: mobility
+  description: Viajes y conductores
+- name: notifications
+  description: Notificaciones push y WebSockets
+- name: payments
+  description: Pagos, métodos de pago y reembolsos
