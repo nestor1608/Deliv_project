@@ -46,6 +46,10 @@ jobs:
         run: python manage.py test
         env:
           USE_POSTGRESQL: 'True'
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/deliv_test
+          DB_NAME: deliv_test
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: '5432'
           SECRET_KEY: test-key-not-for-production
           DEBUG: 'False'
