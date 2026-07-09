@@ -1,6 +1,7 @@
 from decimal import Decimal
 from rest_framework import serializers
 from .models import Order, OrderItem, Product, OrderStatusHistory
+from .models.coupon import Coupon
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -50,6 +51,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'id', 'order_number', 'status', 'payment_status',
             'customer_info', 'vendor_info', 'delivery_address',
             'subtotal', 'delivery_fee', 'tax_amount', 'total_amount',
+            'coupon', 'discount_amount',
             'estimated_delivery_time', 'customer_notes', 'vendor_notes',
             'scheduled_time', 'items', 'status_history', 'created_at',
             'updated_at'
@@ -133,3 +135,14 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         order.save()
         
         return order
+
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = [
+            'id', 'code', 'description', 'discount_type', 'discount_value',
+            'min_order_amount', 'max_discount_cap', 'max_uses',
+            'max_uses_per_user', 'used_count', 'vendor', 'valid_from',
+            'valid_to', 'is_active', 'created_at'
+        ]
+        read_only_fields = ['used_count', 'created_at']

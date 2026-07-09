@@ -1,11 +1,16 @@
-from rest_framework import generics, permissions, status
-from rest_framework.decorators import api_view, permission_classes
+from decimal import Decimal
+from rest_framework import generics, permissions, status, viewsets, filters
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Order, OrderStatusHistory
-from .serializers import OrderSerializer, OrderStatusHistorySerializer, CreateOrderSerializer
+from .models.coupon import Coupon
+from .serializers import OrderSerializer, OrderStatusHistorySerializer, CreateOrderSerializer, CouponSerializer
 from .permissions import IsCustomer, IsVendor, IsOrderOwner
+from .services import validate_and_apply_coupon
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 
@@ -207,3 +212,64 @@ def order_tracking(request, order_number):
             {'error': 'Pedido no encontrado'}, 
             status=status.HTTP_404_NOT_FOUND
         )
+
+class CouponViewSet(viewsets.ModelViewSet):
+    """
+    Admin CRUD for coupons.
+    """
+    serializer_class = CouponSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Coupon.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['is_active', 'discount_type', 'vendor']
+    search_fields = ['code', 'description']
+    ordering_fields = ['created_at', 'valid_from', 'valid_to']
+    ordering = ['-created_at']
+
+@extend_schema(
+    summary='Validar cupón',
+    description='Valida un código de cupón y devuelve el descuento aplicable.',
+    tags=['orders'],
+    parameters=[
+        OpenApiParameter(name='code', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, required=True),
+        OpenApiParameter(name='subtotal', type=OpenApiTypes.NUMBER, location=OpenApiParameter.QUERY, required=True),
+        OpenApiParameter(name='vendor_id', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+    ],
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def validate_coupon(request):
+    code = request.query_params.get('code')
+    subtotal = request.query_params.get('subtotal')
+    vendor_id = request.query_params.get('vendor_id')
+    
+    if not code or not subtotal:
+        return Response({'error': 'Faltan parámetros'}, status=400)
+    
+    try:
+        subtotal = Decimal(subtotal)
+    except:
+        return Response({'error': 'Subtotal inválido'}, status=400)
+    
+    vendor = None
+    if vendor_id:
+        from vendors.models import Vendor
+        try:
+            vendor = Vendor.objects.get(id=vendor_id)
+        except Vendor.DoesNotExist:
+            pass
+    
+    result = validate_and_apply_coupon(code, subtotal, vendor, request.user)
+    
+    if result['success']:
+        return Response({
+            'valid': True,
+            'discount_amount': float(result['discount_amount']),
+            'message': result['message'],
+        })
+    else:
+        return Response({
+            'valid': False,
+            'discount_amount': 0,
+            'message': result['message'],
+        })

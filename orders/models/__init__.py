@@ -1,7 +1,8 @@
 from decimal import Decimal
 from django.db import models
 from django.conf import settings
-from vendors.models import Vendor, Product 
+from vendors.models import Vendor, Product
+from .coupon import Coupon
 
 
 class Order(models.Model):
@@ -38,14 +39,6 @@ class Order(models.Model):
         on_delete=models.CASCADE,
         related_name='orders'
     )
-    # delivery_person = models.ForeignKey(
-    #     settings.AUTH_USER_MODEL,
-    #     on_delete=models.SET_NULL,
-    #     null=True,
-    #     blank=True,
-    #     related_name='delivery_orders',
-    #     limit_choices_to={'role': 'delivery'}
-    # )
     delivery_person = models.ForeignKey(
     'delivery.DeliveryPerson',  # Referencia al modelo DeliveryPerson
     on_delete=models.SET_NULL,
@@ -88,6 +81,10 @@ class Order(models.Model):
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     
+    # Coupon / Discount
+    coupon = models.ForeignKey('orders.Coupon', on_delete=models.SET_NULL, null=True, blank=True)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    
     estimated_delivery_time = models.DateTimeField(null=True, blank=True)
     
     # Notas y observaciones
@@ -117,7 +114,6 @@ class Order(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.order_number:
-            # Generar número de pedido único
             import uuid
             self.order_number = f"ORD-{str(uuid.uuid4())[:8].upper()}"
         super().save(*args, **kwargs)

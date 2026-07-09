@@ -1,7 +1,11 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
 app_name = 'orders'
+
+router = DefaultRouter()
+router.register(r'coupons', views.CouponViewSet)
 
 urlpatterns = [
     # Pedidos del cliente
@@ -14,4 +18,8 @@ urlpatterns = [
     
     # Seguimiento
     path('tracking/<str:order_number>/', views.order_tracking, name='order-tracking'),
+    
+    # Cupones
+    path('validate-coupon/', views.validate_coupon, name='validate-coupon'),
+    path('', include(router.urls)),
 ]
