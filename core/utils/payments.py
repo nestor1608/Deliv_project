@@ -37,7 +37,6 @@ class MercadoPagoService:
         response = requests.get(url, headers=headers)
         return response.json()
 
-
     def create_refund(self, payment_id, amount=None, reason=""):
         """
         Create a refund for a MercadoPago payment.
@@ -59,14 +58,6 @@ class MercadoPagoService:
             return response.json()
         except Exception as e:
             return {"status": "error", "status_detail": str(e)}
-
-    def get_payment_status(self, payment_id):
-        """Get payment status from MercadoPago."""
-        import requests
-        headers = {"Authorization": f"Bearer {self.access_token}"}
-        url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
-        response = requests.get(url, headers=headers)
-        return response.json()
 
 
 class TripPricingService:
