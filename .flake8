@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 100
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    .pytest_cache,
+    migrations,
+    */migrations/*,
+    graphify-out
+ignore = E203, W503, E501, E402, F403, F405
+per-file-ignores =
+    tests/factories.py: F403, F405
+    */tests.py: F403, F405
+    */settings.py: E402

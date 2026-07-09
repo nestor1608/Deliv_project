@@ -51,10 +51,12 @@ class OrderSerializer(serializers.ModelSerializer):
             'customer_info', 'vendor_info', 'delivery_address',
             'subtotal', 'delivery_fee', 'tax_amount', 'total_amount',
             'estimated_delivery_time', 'customer_notes', 'vendor_notes',
-            'items', 'status_history', 'created_at', 'updated_at'
+            'scheduled_time', 'items', 'status_history', 'created_at',
+            'updated_at'
         ]
         read_only_fields = [
-            'id', 'order_number', 'created_at', 'updated_at'
+            'id', 'order_number', 'scheduled_time', 'created_at',
+            'updated_at'
         ]
     
     def get_customer_info(self, obj):
@@ -74,11 +76,13 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     """Serializer para crear nuevos pedidos"""
     items = OrderItemSerializer(many=True)
     
+    scheduled_time = serializers.DateTimeField(required=False, allow_null=True)
+
     class Meta:
         model = Order
         fields = [
             'vendor', 'delivery_address', 'delivery_latitude',
-            'delivery_longitude', 'customer_notes', 'items'
+            'delivery_longitude', 'customer_notes', 'scheduled_time', 'items'
         ]
     
     def validate_items(self, value):
@@ -88,6 +92,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        scheduled_time = validated_data.pop('scheduled_time', None)
         
         # Crear el pedido con valores iniciales para campos no nulos
         order = Order.objects.create(
@@ -96,6 +101,11 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             total_amount=Decimal('0.00'),
             **validated_data
         )
+        
+        if scheduled_time:
+            order.scheduled_time = scheduled_time
+            order.status = 'scheduled'
+            order.save(update_fields=['scheduled_time', 'status'])
         
         # Crear los items y calcular totales
         subtotal = Decimal('0.00')

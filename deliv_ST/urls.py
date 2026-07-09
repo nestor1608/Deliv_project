@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/mobility/', include('mobility.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/payments/', include('payments.urls')),
+    path('api/', include('core.urls')),
     
     # Documentación API (OpenAPI/Swagger)
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

@@ -12,13 +12,14 @@ class VendorCategorySerializer(serializers.ModelSerializer):
 class VendorListSerializer(serializers.ModelSerializer):
     """Serializer para listado de comercios (vista resumida)"""
     category_name = serializers.CharField(source='category.name', read_only=True)
+    distance = serializers.FloatField(read_only=True, required=False)
     
     class Meta:
         model = Vendor
         fields = [
             'id', 'business_name', 'category_name', 'rating',
             'delivery_fee', 'delivery_time', 'is_open',
-            'minimum_order'
+            'minimum_order', 'distance'
         ]
 
 class VendorSerializer(serializers.ModelSerializer):

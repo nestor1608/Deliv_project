@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from .models import *
 from .serializers import *
+from .utils import haversine_distance
 from customers.permissions import IsCustomer
 from vendors.permissions import IsVendorOwner
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
@@ -190,11 +191,30 @@ class VendorViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Aquí implementarías la lógica de geolocalización
-        # Por simplicidad, devolvemos todos los comercios abiertos
+        try:
+            lat = float(lat)
+            lng = float(lng)
+        except (ValueError, TypeError):
+            return Response(
+                {'error': 'latitude y longitude deben ser valores numéricos'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         vendors = self.get_queryset().filter(is_open=True)
-        serializer = VendorListSerializer(vendors, many=True)
-        return Response(serializer.data)
+        
+        results = []
+        for vendor in vendors:
+            if vendor.latitude is not None and vendor.longitude is not None:
+                distance = haversine_distance(lat, lng, vendor.latitude, vendor.longitude)
+                if distance <= vendor.delivery_radius:
+                    serializer = VendorListSerializer(vendor)
+                    data = serializer.data
+                    data['distance'] = distance
+                    results.append(data)
+        
+        results.sort(key=lambda x: x['distance'])
+        
+        return Response(results)
     
     @extend_schema(
         summary='Abrir/cerrar comercio',

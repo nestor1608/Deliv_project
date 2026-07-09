@@ -1,0 +1,498 @@
+C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework_simplejwt\__init__.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import DistributionNotFound, get_distribution
+Found 351 test(s).
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+Operations to perform:
+  Synchronize unmigrated apps: channels, core, corsheaders, django_filters, drf_spectacular, messages, rest_framework, rest_framework_simplejwt, staticfiles
+  Apply all migrations: admin, auth, contenttypes, customers, delivery, mobility, notifications, orders, payments, sessions, token_blacklist, users, vendors
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying users.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying auth.0013_user_custom_groups_user_custom_user_permissions... OK
+  Applying auth.0014_remove_user_custom_groups_and_more... OK
+  Applying customers.0001_initial... OK
+  Applying customers.0002_initial... OK
+  Applying customers.0003_customer_default_address_customer_phone_verified... OK
+  Applying delivery.0001_initial... OK
+  Applying orders.0001_initial... OK
+  Applying delivery.0002_initial... OK
+  Applying mobility.0001_initial... OK
+  Applying mobility.0002_initial... OK
+  Applying mobility.0003_alter_trip_status... OK
+  Applying notifications.0001_initial... OK
+  Applying notifications.0002_initial... OK
+  Applying vendors.0001_initial... OK
+  Applying orders.0002_initial... OK
+  Applying payments.0001_initial... OK
+  Applying payments.0002_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying token_blacklist.0001_initial... OK
+  Applying token_blacklist.0002_outstandingtoken_jti_hex... OK
+  Applying token_blacklist.0003_auto_20171017_2007... OK
+  Applying token_blacklist.0004_auto_20171017_2013... OK
+  Applying token_blacklist.0005_remove_outstandingtoken_jti... OK
+  Applying token_blacklist.0006_auto_20171017_2113... OK
+  Applying token_blacklist.0007_auto_20171017_2214... OK
+  Applying token_blacklist.0008_migrate_to_bigautofield... OK
+  Applying token_blacklist.0010_fix_migrate_to_bigautofield... OK
+  Applying token_blacklist.0011_linearizes_history... OK
+  Applying token_blacklist.0012_alter_outstandingtoken_user... OK
+System check identified no issues (0 silenced).
+test_cleanup_old_notifications (core.tests.CoreTaskTests.test_cleanup_old_notifications)
+cleanup_old_notifications task executes without error. ... ok
+test_send_email_notification (core.tests.CoreTaskTests.test_send_email_notification)
+send_email_notification task executes without error. ... ok
+test_400_format (core.tests.ExceptionHandlerTests.test_400_format)
+Validation errors return consistent JSON shape. ... ok
+test_401_format (core.tests.ExceptionHandlerTests.test_401_format)
+Auth errors return consistent JSON shape. ... ok
+test_403_format (core.tests.ExceptionHandlerTests.test_403_format)
+Permission errors return consistent JSON shape. ... ok
+test_404_format (core.tests.ExceptionHandlerTests.test_404_format)
+404 errors return consistent JSON shape. ... ok
+test_405_format (core.tests.ExceptionHandlerTests.test_405_format)
+Method not allowed errors return consistent JSON shape. ... ok
+test_423_locked_format (core.tests.ExceptionHandlerTests.test_423_locked_format)
+LockedError returns consistent JSON shape with 423. ... ok
+test_429_format (core.tests.ExceptionHandlerTests.test_429_format)
+Rate limit errors return consistent JSON shape. ... ok
+test_500_generic_format (core.tests.ExceptionHandlerTests.test_500_generic_format)
+Unhandled exceptions return 500. ... Unhandled exception: something broke
+ok
+test_get_error_code_mapping (core.tests.ExceptionHandlerTests.test_get_error_code_mapping)
+get_error_code returns correct codes. ... ok
+test_get_user_friendly_message_mapping (core.tests.ExceptionHandlerTests.test_get_user_friendly_message_mapping)
+get_user_friendly_message returns correct messages. ... ok
+test_integrity_error_format (core.tests.ExceptionHandlerTests.test_integrity_error_format)
+IntegrityError returns proper error format. ... ok
+test_check_lockout_passes_when_not_locked (core.tests.LockoutServiceTests.test_check_lockout_passes_when_not_locked)
+check_lockout does not raise when account is not locked. ... ok
+test_check_lockout_raises_locked_error (core.tests.LockoutServiceTests.test_check_lockout_raises_locked_error)
+check_lockout raises LockedError when account is locked. ... Account locked out
+Blocked login attempt on locked account
+ok
+test_exponential_backoff_duration (core.tests.LockoutServiceTests.test_exponential_backoff_duration)
+Excess attempts use longer lockout durations. ... Account locked out
+Account locked out
+Account locked out
+Account locked out
+ok
+test_get_lockout_remaining_when_locked (core.tests.LockoutServiceTests.test_get_lockout_remaining_when_locked)
+get_lockout_remaining returns > 0 when locked. ... Account locked out
+ok
+test_get_lockout_remaining_when_not_locked (core.tests.LockoutServiceTests.test_get_lockout_remaining_when_not_locked)
+get_lockout_remaining returns 0 when not locked. ... ok
+test_is_not_locked_initially (core.tests.LockoutServiceTests.test_is_not_locked_initially)
+A fresh identifier is not locked. ... ok
+test_locked_error_has_status_423 (core.tests.LockoutServiceTests.test_locked_error_has_status_423)
+LockedError is an APIException with status 423. ... ok
+test_locked_error_includes_remaining (core.tests.LockoutServiceTests.test_locked_error_includes_remaining)
+LockedError stores the remaining time. ... ok
+test_lockout_after_max_attempts (core.tests.LockoutServiceTests.test_lockout_after_max_attempts)
+After MAX_FAILED_ATTEMPTS failed attempts, the account is locked. ... Account locked out
+ok
+test_lockout_independent_per_identifier (core.tests.LockoutServiceTests.test_lockout_independent_per_identifier)
+Lockout for one identifier doesn't affect another. ... Account locked out
+ok
+test_no_attempts_initially (core.tests.LockoutServiceTests.test_no_attempts_initially)
+A fresh identifier has 0 failed attempts. ... ok
+test_not_locked_before_max_attempts (core.tests.LockoutServiceTests.test_not_locked_before_max_attempts)
+Below MAX_FAILED_ATTEMPTS, the account is not locked. ... ok
+test_record_failed_attempt_increments (core.tests.LockoutServiceTests.test_record_failed_attempt_increments)
+Each failed attempt increments the counter. ... ok
+test_reset_clears_attempts_and_lock (core.tests.LockoutServiceTests.test_reset_clears_attempts_and_lock)
+reset_attempts clears both the counter and the lock. ... Account locked out
+ok
+test_create_address_default_unsets_previous_default (customers.tests.CustomerAddressCreateTests.test_create_address_default_unsets_previous_default)
+Creating a new default address unsets the previous default. ... ok
+test_create_address_missing_required_fields (customers.tests.CustomerAddressCreateTests.test_create_address_missing_required_fields)
+Create address without required fields returns 400. ... API Exception in POST /api/customers/addresses/: {'street_address': [ErrorDetail(string='This field is required.', code='required')], 'city': [ErrorDetail(string='This field is required.', code='required')], 'state': [ErrorDetail(string='This field is required.', code='required')], 'postal_code': [ErrorDetail(string='This field is required.', code='required')]}
+{"event": "Bad Request: /api/customers/addresses/"}
+ok
+test_create_address_set_as_default (customers.tests.CustomerAddressCreateTests.test_create_address_set_as_default)
+Create an address marked as default ù returns 201, is_default=True. ... ok
+test_create_address_success (customers.tests.CustomerAddressCreateTests.test_create_address_success)
+Create a new address with valid data ù returns 201. ... ok
+test_create_address_unauthenticated (customers.tests.CustomerAddressCreateTests.test_create_address_unauthenticated)
+Unauthenticated POST returns 401. ... API Exception in POST /api/customers/addresses/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/"}
+ok
+test_delete_address_unauthenticated (customers.tests.CustomerAddressDeleteTests.test_delete_address_unauthenticated)
+Unauthenticated DELETE returns 401. ... API Exception in DELETE /api/customers/addresses/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/1/"}
+ok
+test_delete_non_existent_address (customers.tests.CustomerAddressDeleteTests.test_delete_non_existent_address)
+DELETE on a non-existent address returns 404. ... API Exception in DELETE /api/customers/addresses/99999/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/99999/"}
+ok
+test_delete_other_customer_address_not_found (customers.tests.CustomerAddressDeleteTests.test_delete_other_customer_address_not_found)
+DELETE on an address belonging to another customer returns 404 (not in queryset). ... API Exception in DELETE /api/customers/addresses/2/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/2/"}
+ok
+test_delete_own_address_success (customers.tests.CustomerAddressDeleteTests.test_delete_own_address_success)
+Delete an address the customer owns ù returns 204. ... ok
+test_get_address_non_existent (customers.tests.CustomerAddressDetailRetrieveTests.test_get_address_non_existent)
+Retrieve a non-existent address returns 404. ... API Exception in GET /api/customers/addresses/99999/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/99999/"}
+ok
+test_get_address_other_customer_not_found (customers.tests.CustomerAddressDetailRetrieveTests.test_get_address_other_customer_not_found)
+Retrieve an address belonging to another customer returns 404 (filtered by queryset). ... API Exception in GET /api/customers/addresses/2/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/2/"}
+ok
+test_get_address_success (customers.tests.CustomerAddressDetailRetrieveTests.test_get_address_success)
+Retrieve an existing address ù returns 200. ... ok
+test_get_address_unauthenticated (customers.tests.CustomerAddressDetailRetrieveTests.test_get_address_unauthenticated)
+Unauthenticated GET returns 401. ... API Exception in GET /api/customers/addresses/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/1/"}
+ok
+test_list_addresses_empty (customers.tests.CustomerAddressListTests.test_list_addresses_empty)
+Customer with no addresses returns an empty list. ... C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'customers.models.CustomerAddress'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+ok
+test_list_addresses_other_customer_not_visible (customers.tests.CustomerAddressListTests.test_list_addresses_other_customer_not_visible)
+Addresses belonging to another customer are not visible. ... ok
+test_list_addresses_unauthenticated (customers.tests.CustomerAddressListTests.test_list_addresses_unauthenticated)
+Unauthenticated request returns 401. ... API Exception in GET /api/customers/addresses/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/"}
+ok
+test_list_addresses_with_data (customers.tests.CustomerAddressListTests.test_list_addresses_with_data)
+Customer with addresses returns all their addresses. ... ok
+test_patch_address_partial_update (customers.tests.CustomerAddressUpdateTests.test_patch_address_partial_update)
+Partially update an address via PATCH ù returns 200. ... ok
+test_put_address_full_update (customers.tests.CustomerAddressUpdateTests.test_put_address_full_update)
+Fully replace an address via PUT ù returns 200. ... ok
+test_update_address_other_customer_not_found (customers.tests.CustomerAddressUpdateTests.test_update_address_other_customer_not_found)
+Update on an address belonging to another customer returns 404. ... API Exception in PATCH /api/customers/addresses/2/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/2/"}
+ok
+test_update_address_set_default (customers.tests.CustomerAddressUpdateTests.test_update_address_set_default)
+Update an address and set it as default ù previous default is unset. ... ok
+test_update_address_unauthenticated (customers.tests.CustomerAddressUpdateTests.test_update_address_unauthenticated)
+Unauthenticated update returns 401. ... API Exception in PATCH /api/customers/addresses/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/1/"}
+ok
+test_get_profile_as_vendor_user (customers.tests.CustomerProfileRetrieveTests.test_get_profile_as_vendor_user)
+A vendor user can also access the customer profile endpoint (auto-create). ... ok
+test_get_profile_unauthenticated (customers.tests.CustomerProfileRetrieveTests.test_get_profile_unauthenticated)
+Unauthenticated request returns 401. ... API Exception in GET /api/customers/profile/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/profile/"}
+ok
+test_get_profile_when_exists (customers.tests.CustomerProfileRetrieveTests.test_get_profile_when_exists)
+Authenticated customer retrieves their existing profile ù returns 200. ... ok
+test_get_profile_when_not_exists_auto_creates (customers.tests.CustomerProfileRetrieveTests.test_get_profile_when_not_exists_auto_creates)
+Customer without a profile auto-creates one on GET ù returns 200. ... ok
+test_update_cannot_change_loyalty_points (customers.tests.CustomerProfileUpdateTests.test_update_cannot_change_loyalty_points)
+Attempting to update read-only loyalty_points is ignored or returns 200 (field is read-only). ... ok
+test_update_date_of_birth (customers.tests.CustomerProfileUpdateTests.test_update_date_of_birth)
+Update date_of_birth ù returns 200 and reflects the change. ... ok
+test_update_is_premium (customers.tests.CustomerProfileUpdateTests.test_update_is_premium)
+Update is_premium to True ù returns 200. ... ok
+test_update_preferred_payment_method (customers.tests.CustomerProfileUpdateTests.test_update_preferred_payment_method)
+Update preferred_payment_method to 'card' ù returns 200. ... ok
+test_update_unauthenticated (customers.tests.CustomerProfileUpdateTests.test_update_unauthenticated)
+Unauthenticated PATCH returns 401. ... API Exception in PATCH /api/customers/profile/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/profile/"}
+ok
+test_active_orders_returns_assigned_orders (delivery.tests.ActiveOrdersTests.test_active_orders_returns_assigned_orders)
+Returns orders in 'ready' or 'picked_up' status for the delivery person. ... ok
+test_active_orders_when_no_orders (delivery.tests.ActiveOrdersTests.test_active_orders_when_no_orders)
+Returns empty list when delivery person has no active orders. ... ok
+test_create_delivery_person_success (delivery.tests.DeliveryPersonCreateTests.test_create_delivery_person_success)
+Authenticated user can register as a delivery person. ... ok
+test_create_duplicate_license_fails (delivery.tests.DeliveryPersonCreateTests.test_create_duplicate_license_fails)
+Duplicate license numbers are rejected. ... API Exception in POST /api/delivery/delivery-persons/: {'license_number': [ErrorDetail(string='delivery person with this license number already exists.', code='unique')]}
+{"event": "Bad Request: /api/delivery/delivery-persons/"}
+ok
+test_create_unauthenticated_returns_401 (delivery.tests.DeliveryPersonCreateTests.test_create_unauthenticated_returns_401)
+Only authenticated users can register. ... API Exception in POST /api/delivery/delivery-persons/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/"}
+ok
+test_delete_other_profile_returns_404 (delivery.tests.DeliveryPersonDeleteTests.test_delete_other_profile_returns_404)
+Delivery person cannot delete another person's profile. ... API Exception in DELETE /api/delivery/delivery-persons/2/: No DeliveryPerson matches the given query.
+{"event": "Not Found: /api/delivery/delivery-persons/2/"}
+ok
+test_delete_own_profile (delivery.tests.DeliveryPersonDeleteTests.test_delete_own_profile)
+Delivery person can delete their own profile. ... ok
+test_delete_unauthenticated_returns_401 (delivery.tests.DeliveryPersonDeleteTests.test_delete_unauthenticated_returns_401)
+Unauthenticated delete is rejected. ... API Exception in DELETE /api/delivery/delivery-persons/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/"}
+ok
+test_list_as_customer_returns_empty (delivery.tests.DeliveryPersonListTests.test_list_as_customer_returns_empty)
+Customers see no delivery persons in the list. ... ok
+test_list_as_delivery_returns_own_profile (delivery.tests.DeliveryPersonListTests.test_list_as_delivery_returns_own_profile)
+Delivery person sees their own profile in the list. ... C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'delivery.models.DeliveryPerson'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+ok
+test_list_unauthenticated_returns_401 (delivery.tests.DeliveryPersonListTests.test_list_unauthenticated_returns_401)
+Unauthenticated requests are rejected. ... API Exception in GET /api/delivery/delivery-persons/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/"}
+ok
+test_retrieve_other_profile_returns_404 (delivery.tests.DeliveryPersonRetrieveTests.test_retrieve_other_profile_returns_404)
+Delivery person cannot retrieve another person's profile. ... API Exception in GET /api/delivery/delivery-persons/2/: No DeliveryPerson matches the given query.
+{"event": "Not Found: /api/delivery/delivery-persons/2/"}
+ok
+test_retrieve_own_profile (delivery.tests.DeliveryPersonRetrieveTests.test_retrieve_own_profile)
+Delivery person can retrieve their own profile. ... ok
+test_retrieve_unauthenticated_returns_401 (delivery.tests.DeliveryPersonRetrieveTests.test_retrieve_unauthenticated_returns_401)
+Unauthenticated requests are rejected. ... API Exception in GET /api/delivery/delivery-persons/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/"}
+ok
+test_update_other_profile_returns_404 (delivery.tests.DeliveryPersonUpdateTests.test_update_other_profile_returns_404)
+Delivery person cannot update another person's profile. ... API Exception in PATCH /api/delivery/delivery-persons/2/: No DeliveryPerson matches the given query.
+{"event": "Not Found: /api/delivery/delivery-persons/2/"}
+ok
+test_update_own_profile (delivery.tests.DeliveryPersonUpdateTests.test_update_own_profile)
+Delivery person can update their own profile. ... ok
+test_update_unauthenticated_returns_401 (delivery.tests.DeliveryPersonUpdateTests.test_update_unauthenticated_returns_401)
+Unauthenticated updates are rejected. ... API Exception in PATCH /api/delivery/delivery-persons/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/"}
+ok
+test_create_duplicate_rating_fails (delivery.tests.DeliveryRatingCreateTests.test_create_duplicate_rating_fails)
+Customer cannot rate the same order twice. ... API Exception in POST /api/delivery/ratings/: {'order': [ErrorDetail(string='delivery rating with this order already exists.', code='unique')]}
+{"event": "Bad Request: /api/delivery/ratings/"}
+ok
+test_create_rating_as_delivery_person_fails (delivery.tests.DeliveryRatingCreateTests.test_create_rating_as_delivery_person_fails)
+Non-customer users cannot create ratings. ... API Exception in POST /api/delivery/ratings/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/delivery/ratings/"}
+ok
+test_create_rating_non_delivered_order_fails (delivery.tests.DeliveryRatingCreateTests.test_create_rating_non_delivered_order_fails)
+Cannot rate an order that has not been delivered. ... API Exception in POST /api/delivery/ratings/: {'non_field_errors': [ErrorDetail(string='Solo puedes calificar pedidos entregados', code='invalid')]}
+{"event": "Bad Request: /api/delivery/ratings/"}
+ok
+test_create_rating_success (delivery.tests.DeliveryRatingCreateTests.test_create_rating_success)
+Customer can rate a delivered order. ... ok
+test_create_rating_wrong_customer_order_fails (delivery.tests.DeliveryRatingCreateTests.test_create_rating_wrong_customer_order_fails)
+Customer cannot rate an order that belongs to another customer. ... API Exception in POST /api/delivery/ratings/: {'non_field_errors': [ErrorDetail(string='No puedes calificar un pedido que no es tuyo', code='invalid')]}
+{"event": "Bad Request: /api/delivery/ratings/"}
+ok
+test_list_ratings_as_customer (delivery.tests.DeliveryRatingListTests.test_list_ratings_as_customer)
+Customer can see their own ratings. ... C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'delivery.models.DeliveryRating'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+ok
+test_list_ratings_as_delivery_returns_forbidden (delivery.tests.DeliveryRatingListTests.test_list_ratings_as_delivery_returns_forbidden)
+Delivery person gets 403 because ratings require the IsCustomer permission. ... API Exception in GET /api/delivery/ratings/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/delivery/ratings/"}
+ok
+test_earnings_with_delivered_orders (delivery.tests.EarningsTests.test_earnings_with_delivered_orders)
+Returns correct earnings from delivered orders. ... ok
+test_earnings_with_no_delivered_orders (delivery.tests.EarningsTests.test_earnings_with_no_delivered_orders)
+Returns zero earnings when no orders have been delivered. ... ok
+test_change_to_available (delivery.tests.UpdateAvailabilityTests.test_change_to_available)
+Delivery person can change availability to 'available'. ... ok
+test_change_to_busy (delivery.tests.UpdateAvailabilityTests.test_change_to_busy)
+Delivery person can change availability to 'busy'. ... ok
+test_change_to_offline (delivery.tests.UpdateAvailabilityTests.test_change_to_offline)
+Delivery person can change availability to 'offline'. ... ok
+test_invalid_availability_value (delivery.tests.UpdateAvailabilityTests.test_invalid_availability_value)
+Invalid availability value returns a validation error. ... API Exception in PATCH /api/delivery/delivery-persons/1/update_availability/: {'availability': [ErrorDetail(string='"invalid" is not a valid choice.', code='invalid_choice')]}
+{"event": "Bad Request: /api/delivery/delivery-persons/1/update_availability/"}
+ok
+test_update_location_unauthenticated_returns_401 (delivery.tests.UpdateLocationTests.test_update_location_unauthenticated_returns_401)
+Unauthenticated location update is rejected. ... API Exception in PATCH /api/delivery/delivery-persons/1/update_location/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/update_location/"}
+ok
+test_update_location_with_single_coord (delivery.tests.UpdateLocationTests.test_update_location_with_single_coord)
+Updating with only latitude (missing longitude) sets the given field. ... ok
+test_update_location_with_valid_coords (delivery.tests.UpdateLocationTests.test_update_location_with_valid_coords)
+Delivery person can update their location with valid coordinates. ... ok
+test_active_trips_other_driver_fails (mobility.tests.DriverActiveTripsTests.test_active_trips_other_driver_fails)
+Driver gets 404 when trying to view another driver's active trips ... API Exception in GET /api/mobility/drivers/2/active_trips/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/active_trips/"}
+ok
+test_active_trips_returns_assigned_trips (mobility.tests.DriverActiveTripsTests.test_active_trips_returns_assigned_trips)
+Returns active trips for the driver. ... ok
+test_create_driver_success (mobility.tests.DriverCreateTests.test_create_driver_success)
+Authenticated user can register as a driver. ... ok
+test_create_duplicate_license_fails (mobility.tests.DriverCreateTests.test_create_duplicate_license_fails)
+Duplicate license numbers are rejected. ... API Exception in POST /api/mobility/drivers/: {'license_number': [ErrorDetail(string='driver with this license number already exists.', code='unique')]}
+{"event": "Bad Request: /api/mobility/drivers/"}
+ok
+test_create_unauthenticated_returns_401 (mobility.tests.DriverCreateTests.test_create_unauthenticated_returns_401)
+Only authenticated users can register. ... API Exception in POST /api/mobility/drivers/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/drivers/"}
+ok
+test_earnings_no_completed_trips (mobility.tests.DriverEarningsTests.test_earnings_no_completed_trips)
+Returns zero earnings when no trips completed. ... ok
+test_earnings_other_driver_fails (mobility.tests.DriverEarningsTests.test_earnings_other_driver_fails)
+Driver gets 404 when trying to view another driver's earnings ... API Exception in GET /api/mobility/drivers/2/earnings/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/earnings/"}
+ok
+test_earnings_with_completed_trips (mobility.tests.DriverEarningsTests.test_earnings_with_completed_trips)
+Returns correct earnings from completed trips. ... ok
+test_list_as_anonymous_returns_server_error (mobility.tests.DriverListTests.test_list_as_anonymous_returns_server_error)
+Anonymous users crash the view because get_queryset accesses user.role ... API Exception in GET /api/mobility/drivers/: 'AnonymousUser' object has no attribute 'role'
+Unhandled exception: 'AnonymousUser' object has no attribute 'role'
+{"event": "Internal Server Error: /api/mobility/drivers/"}
+ok
+test_list_as_customer_sees_approved_drivers (mobility.tests.DriverListTests.test_list_as_customer_sees_approved_drivers)
+Customers see approved and available drivers. ... ok
+test_list_as_driver_sees_own_profile (mobility.tests.DriverListTests.test_list_as_driver_sees_own_profile)
+Drivers only see their own profile. ... ok
+test_retrieve_driver_detail (mobility.tests.DriverRetrieveTests.test_retrieve_driver_detail)
+Authenticated user can retrieve a driver detail. ... ok
+test_retrieve_unauthenticated_returns_server_error (mobility.tests.DriverRetrieveTests.test_retrieve_unauthenticated_returns_server_error)
+Anonymous users crash the view because get_queryset accesses user.role ... API Exception in GET /api/mobility/drivers/1/: 'AnonymousUser' object has no attribute 'role'
+Unhandled exception: 'AnonymousUser' object has no attribute 'role'
+{"event": "Internal Server Error: /api/mobility/drivers/1/"}
+ok
+test_change_to_available (mobility.tests.DriverUpdateAvailabilityTests.test_change_to_available)
+Driver can change availability to 'available'. ... ok
+test_change_to_busy (mobility.tests.DriverUpdateAvailabilityTests.test_change_to_busy)
+Driver can change availability to 'busy'. ... ok
+test_invalid_availability_value (mobility.tests.DriverUpdateAvailabilityTests.test_invalid_availability_value)
+Invalid availability value returns a validation error. ... API Exception in PATCH /api/mobility/drivers/1/update_availability/: {'availability': [ErrorDetail(string='"invalid" is not a valid choice.', code='invalid_choice')]}
+{"event": "Bad Request: /api/mobility/drivers/1/update_availability/"}
+ok
+test_other_driver_cannot_change_availability (mobility.tests.DriverUpdateAvailabilityTests.test_other_driver_cannot_change_availability)
+Driver gets 404 when trying to change another driver's availability ... API Exception in PATCH /api/mobility/drivers/2/update_availability/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/update_availability/"}
+ok
+test_update_location_other_driver_fails (mobility.tests.DriverUpdateLocationTests.test_update_location_other_driver_fails)
+Driver gets 404 when trying to update another driver's location ... API Exception in PATCH /api/mobility/drivers/2/update_location/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/update_location/"}
+ok
+test_update_location_success (mobility.tests.DriverUpdateLocationTests.test_update_location_success)
+Driver can update their location. ... ok
+test_update_location_unauthenticated_returns_401 (mobility.tests.DriverUpdateLocationTests.test_update_location_unauthenticated_returns_401)
+Unauthenticated location update is rejected. ... API Exception in PATCH /api/mobility/drivers/1/update_location/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/drivers/1/update_location/"}
+ok
+test_update_other_profile_fails (mobility.tests.DriverUpdateTests.test_update_other_profile_fails)
+Driver cannot update another driver's profile. ... API Exception in PATCH /api/mobility/drivers/2/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/"}
+ok
+test_update_own_profile (mobility.tests.DriverUpdateTests.test_update_own_profile)
+Driver can update their own profile. ... ok
+test_update_unauthenticated_returns_401 (mobility.tests.DriverUpdateTests.test_update_unauthenticated_returns_401)
+Unauthenticated update is rejected. ... API Exception in PATCH /api/mobility/drivers/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/drivers/1/"}
+ok
+test_nearby_drivers_as_anonymous_fails (mobility.tests.NearbyDriversTests.test_nearby_drivers_as_anonymous_fails)
+Unauthenticated requests are rejected. ... API Exception in GET /api/mobility/nearby-drivers/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/nearby-drivers/"}
+ok
+test_nearby_drivers_no_coords_fails (mobility.tests.NearbyDriversTests.test_nearby_drivers_no_coords_fails)
+Returns 400 when coordinates are missing. ... {"event": "Bad Request: /api/mobility/nearby-drivers/"}
+ok
+test_nearby_drivers_with_coords (mobility.tests.NearbyDriversTests.test_nearby_drivers_with_coords)
+Returns nearby drivers when coordinates are provided. ... ok
+test_accept_already_accepted_trip_fails (mobility.tests.TripAcceptTests.test_accept_already_accepted_trip_fails)
+Accepting an already-accepted trip returns 400. ... {"event": "Bad Request: /api/mobility/trips/1/accept_trip/"}
+ok
+test_accept_trip_as_customer_fails (mobility.tests.TripAcceptTests.test_accept_trip_as_customer_fails)
+Only drivers can accept trips (customer gets 403). ... {"event": "Forbidden: /api/mobility/trips/1/accept_trip/"}
+ok
+test_driver_accepts_requested_trip (mobility.tests.TripAcceptTests.test_driver_accepts_requested_trip)
+Driver can accept a requested trip. ... ok
+test_create_trip_schedules_timeout (mobility.tests.TripAssignmentTimeoutTests.test_create_trip_schedules_timeout)
+Creating a trip schedules the assignment_timeout task with countdown=300. ... ok
+test_task_cancels_requested_trip (mobility.tests.TripAssignmentTimeoutTests.test_task_cancels_requested_trip)
+assignment_timeout cancels a trip that is still 'requested'. ... ok
+test_task_handles_nonexistent_trip (mobility.tests.TripAssignmentTimeoutTests.test_task_handles_nonexistent_trip)
+assignment_timeout gracefully handles a non-existent trip ID. ... Trip 99999 not found for assignment timeout
+ok
+test_task_skips_already_accepted_trip (mobility.tests.TripAssignmentTimeoutTests.test_task_skips_already_accepted_trip)
+assignment_timeout skips a trip that was already accepted. ... ok
+test_cancel_completed_trip_fails (mobility.tests.TripCancelTests.test_cancel_completed_trip_fails)
+Cannot cancel an already completed trip. ... {"event": "Bad Request: /api/mobility/trips/1/cancel_trip/"}
+ok
+test_cancel_unauthenticated_fails (mobility.tests.TripCancelTests.test_cancel_unauthenticated_fails)
+Unauthenticated cancel is rejected. ... API Exception in PATCH /api/mobility/trips/1/cancel_trip/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/trips/1/cancel_trip/"}
+ok
+test_customer_cancels_requested_trip (mobility.tests.TripCancelTests.test_customer_cancels_requested_trip)
+Customer can cancel their own requested trip. ... ok
+test_driver_cancels_accepted_trip (mobility.tests.TripCancelTests.test_driver_cancels_accepted_trip)
+Driver can cancel their accepted trip. ... ok
+test_complete_trip_not_driver_fails (mobility.tests.TripCompleteTests.test_complete_trip_not_driver_fails)
+Non-assigned driver gets 404 because get_queryset only returns their trips. ... API Exception in PATCH /api/mobility/trips/1/complete_trip/: No Trip matches the given query.
+{"event": "Not Found: /api/mobility/trips/1/complete_trip/"}
+ok
+test_complete_trip_wrong_status_fails (mobility.tests.TripCompleteTests.test_complete_trip_wrong_status_fails)
+Completing a trip not 'in_progress' returns 400. ... {"event": "Bad Request: /api/mobility/trips/1/complete_trip/"}
+ok
+test_driver_completes_in_progress_trip (mobility.tests.TripCompleteTests.test_driver_completes_in_progress_trip)
+Driver can complete an in-progress trip. ... ok
+test_create_trip_as_customer_success (mobility.tests.TripCreateTests.test_create_trip_as_customer_success)
+Customer can create a trip request. ... ok
+test_create_trip_as_driver_fails (mobility.tests.TripCreateTests.test_create_trip_as_driver_fails)
+Non-customer users cannot create trips. ... API Exception in POST /api/mobility/trips/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/mobility/trips/"}
+ok
+test_create_trip_missing_coordinates_fails (mobility.tests.TripCreateTests.test_create_trip_missing_coordinates_fails)
+Trip creation without required coordinates returns a validation error. ... API Exception in POST /api/mobility/trips/: {'pickup_longitude': [ErrorDetail(string='This field is required.', code='required')], 'destination_latitude': [ErrorDetail(string='This field is required.', code='required')], 'destination_longitude': [ErrorDetail(string='This field is required.', code='required')]}
+{"event": "Bad Request: /api/mobility/trips/"}
+ok
+test_create_trip_unauthenticated_returns_401 (mobility.tests.TripCreateTests.test_create_trip_unauthenticated_returns_401)
+Unauthenticated trip creation is rejected. ... API Exception in POST /api/mobility/trips/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/trips/"}
+ok
+test_trip_estimate_as_driver_fails (mobility.tests.TripEstimateTests.test_trip_estimate_as_driver_fails)
+Only customers can get estimates. ... API Exception in POST /api/mobility/estimate/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/mobility/estimate/"}
+ok
+test_trip_estimate_missing_coords_fails (mobility.tests.TripEstimateTests.test_trip_estimate_missing_coords_fails)
+Estimate without coordinates returns 400. ... {"event": "Bad Request: /api/mobility/estimate/"}
+ok
+test_trip_estimate_success (mobility.tests.TripEstimateTests.test_trip_estimate_success)
+Customer can get a trip estimate with valid coordinates. ... ok
+test_create_duplicate_rating_fails (mobility.tests.TripRatingCreateTests.test_create_duplicate_rating_fails)
+Duplicate rating for same trip and type is rejected. ... API Exception in POST /api/mobility/ratings/: {'non_field_errors': [ErrorDetail(string='The fields trip, rating_type must make a unique set.', code='unique')]}
+{"event": "Bad Request: /api/mobility/ratings/"}
+ok
+test_create_rating_as_driver_to_customer (mobility.tests.TripRatingCreateTests.test_create_rating_as_driver_to_customer)
+Driver can rate a customer after a completed trip. ... ok
+test_create_rating_customer_to_driver_success (mobility.tests.TripRatingCreateTests.test_create_rating_customer_to_driver_success)
+Customer can rate a completed trip. ... ok
+test_create_rating_for_other_customers_trip_fails (mobility.tests.TripRatingCreateTests.test_create_rating_for_other_customers_trip_fails)
+Customer cannot rate another customer's trip. ... API Exception in POST /api/mobility/ratings/: {'non_field_errors': [ErrorDetail(string='No puedes calificar este viaje', code='invalid')]}
+{"event": "Bad Request: /api/mobility/ratings/"}
+ok
+test_create_rating_non_completed_trip_fails (mobility.tests.TripRatingCreateTests.test_create_rating_non_completed_trip_fails)
+Cannot rate a trip that is not completed. ... API Exception in POST /api/mobility/ratings/: {'non_field_errors': [ErrorDetail(string='Solo puedes calificar viajes completados', code='invalid')]}
+{"event": "Bad Request: /api/mobility/ratings/"}
+ok
+test_retrieve_trip_as_assigned_driver (mobility.tests.TripRetrieveTests.test_retrieve_trip_as_assigned_driver)
+Assigned driver can retrieve the trip. ... ok
+test_retrieve_trip_as_other_customer_fails (mobility.tests.TripRetrieveTests.test_retrieve_trip_as_other_customer_fails)
+Customer cannot retrieve another customer's trip. ... API Exception in GET /api/mobility/trips/1/: No Trip matches the given query.
+{"event": "Not Found: /api/mobility/trips/1/"}
+ok
+test_retrieve_trip_as_owner_customer (mobility.tests.TripRetrieveTests.test_retrieve_trip_as_owner_customer)
+Customer can retrieve their own trip. ... ok
+test_retrieve_trip_unauthenticated_returns_401 (mobility.tests.TripRetrieveTests.test_retrieve_trip_unauthenticated_returns_401)
+Unauthenticated trip retrieval is rejected. ... API Exception in GET /api/mobility/trips/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/trips/1/"}
+ok
+test_driver_starts_accepted_trip (mobility.tests.TripStartTests.test_driver_starts_accepted_trip)
+Driver can start an accepted trip. ... ok
+test_start_trip_not_assigned_driver_fails (mobility.tests.TripStartTests.test_start_trip_not_assigned_driver_fails)
+Non-assigned driver gets 404 because get_queryset only returns their trips. ... API Exception in PATCH /api/mobility/trips/1/start_trip/: No Trip matches the given query.
+{"event": "Not Found: /api/mobility/trips/1/start_trip/"}
+ok
+test_start_trip_wrong_status_fails (mobility.tests.TripStartTests.test_start_trip_wrong_status_fails)
+Starting a trip that isn't accepted returns 400. ... {"event": "Bad Request: /api/mobility/trips/1/start_trip/"}
+ok
+test_mark_as_read_by_id_already_read (notifications.tests.MarkAsReadStandaloneTests.test_mark_as_read_by_id_already_read)
+Marking an already-read notification returns 200 with updated data. ... ok
+test_mark_as_read_by_id_nonexistent_404 (notifications.tests.MarkAsReadStandaloneTests.test_mark_as_read_by_id_nonexistent_404)

@@ -300,6 +300,79 @@ class RefundViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    @extend_schema(
+        summary='Aprobar reembolso',
+        description='Aprueba un reembolso pendiente y lo envía a procesar. Solo administradores.',
+        tags=['payments'],
+        request=OpenApiTypes.OBJECT,
+        responses={200: OpenApiResponse(description='Reembolso aprobado')},
+    )
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        """Aprobar reembolso pendiente (solo admin)"""
+        if request.user.role != 'admin':
+            return Response(
+                {'error': 'Solo administradores pueden aprobar reembolsos'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        refund = self.get_object()
+
+        if refund.status != 'pending':
+            return Response(
+                {'error': f'El reembolso está en estado {refund.status}, no pendiente'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        refund.status = 'approved'
+        refund.approved_by = request.user
+        refund.save(update_fields=['status', 'approved_by'])
+
+        # Dispatch Celery task to process refund
+        from .tasks import process_refund
+        process_refund.delay(refund.id)
+
+        return Response({
+            'message': 'Reembolso aprobado y enviado a procesar',
+            'refund': RefundSerializer(refund).data
+        })
+
+    @extend_schema(
+        summary='Rechazar reembolso',
+        description='Rechaza un reembolso pendiente. Solo administradores.',
+        tags=['payments'],
+        request=OpenApiTypes.OBJECT,
+        responses={200: OpenApiResponse(description='Reembolso rechazado')},
+    )
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """Rechazar reembolso (solo admin)"""
+        if request.user.role != 'admin':
+            return Response(
+                {'error': 'Solo administradores pueden rechazar reembolsos'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        refund = self.get_object()
+
+        if refund.status != 'pending':
+            return Response(
+                {'error': f'El reembolso está en estado {refund.status}, no pendiente'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        reason = request.data.get('reason', 'Rechazado por administrador')
+
+        refund.status = 'failed'
+        refund.rejected_at = timezone.now()
+        refund.rejection_reason = reason
+        refund.save(update_fields=['status', 'rejected_at', 'rejection_reason'])
+
+        return Response({
+            'message': 'Reembolso rechazado',
+            'refund': RefundSerializer(refund).data
+        })
+
 @extend_schema(
     summary='Procesar pago',
     description='Procesa un pago para un pedido o viaje usando el método de pago seleccionado.',

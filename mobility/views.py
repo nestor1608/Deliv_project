@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
 from django.utils import timezone
@@ -19,6 +20,7 @@ from core.utils.payments import TripPricingService
 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
+from core.throttles import LocationRateThrottle
 
 @extend_schema_view(
     list=extend_schema(
@@ -94,7 +96,7 @@ class DriverViewSet(viewsets.ModelViewSet):
         request=DriverLocationUpdateSerializer,
         responses={200: OpenApiResponse(description='Ubicación actualizada correctamente')},
     )
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['patch'], throttle_classes=[LocationRateThrottle])
     def update_location(self, request, pk=None):
         """Actualizar ubicación del conductor"""
         driver = self.get_object()
@@ -130,6 +132,15 @@ class DriverViewSet(viewsets.ModelViewSet):
             return Response(
                 {'error': 'No tienes permisos para cambiar esta disponibilidad'},
                 status=status.HTTP_403_FORBIDDEN
+            )
+        
+        new_availability = request.data.get('availability')
+        
+        # Block going online if KYC not approved
+        if new_availability == 'available' and driver.background_check_status != 'approved':
+            return Response(
+                {'error': 'Debes completar la verificación KYC antes de estar disponible'},
+                status=400
             )
         
         serializer = DriverAvailabilitySerializer(
@@ -212,6 +223,40 @@ class DriverViewSet(viewsets.ModelViewSet):
             'average_per_trip': total_earnings / total_trips if total_trips else 0,
             'driver_rating': driver.rating
         })
+    
+    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload_kyc(self, request, pk=None):
+        driver = self.get_object()
+        if driver.user != request.user:
+            return Response({'error': 'No puedes modificar este perfil'}, status=403)
+        for field in ['id_document_front', 'id_document_back', 'selfie']:
+            if field in request.FILES:
+                setattr(driver, field, request.FILES[field])
+        driver.background_check_status = 'pending'
+        driver.kyc_submitted_at = timezone.now()
+        driver.save()
+        return Response({'message': 'Documentos subidos', 'status': driver.background_check_status})
+    
+    @action(detail=True, methods=['post'])
+    def approve_kyc(self, request, pk=None):
+        if request.user.role != 'admin':
+            return Response({'error': 'Solo administradores'}, status=403)
+        driver = self.get_object()
+        driver.background_check_status = 'approved'
+        driver.kyc_verified_at = timezone.now()
+        driver.status = 'approved'
+        driver.save()
+        return Response({'message': 'KYC aprobado', 'status': 'approved'})
+    
+    @action(detail=True, methods=['post'])
+    def reject_kyc(self, request, pk=None):
+        if request.user.role != 'admin':
+            return Response({'error': 'Solo administradores'}, status=403)
+        driver = self.get_object()
+        driver.background_check_status = 'rejected'
+        driver.kyc_verified_at = None
+        driver.save()
+        return Response({'message': 'KYC rechazado', 'status': 'rejected'})
 
 @extend_schema_view(
     list=extend_schema(

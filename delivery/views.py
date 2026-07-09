@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
 from django.utils import timezone
@@ -12,6 +13,7 @@ from customers.permissions import IsCustomer
 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
+from core.throttles import LocationRateThrottle
 
 
 @extend_schema_view(
@@ -68,7 +70,7 @@ class DeliveryPersonViewSet(viewsets.ModelViewSet):
         request=DeliveryLocationUpdateSerializer,
         responses={200: OpenApiResponse(description='Ubicación actualizada correctamente')},
     )
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['patch'], throttle_classes=[LocationRateThrottle])
     def update_location(self, request, pk=None):
         """
         Actualizar ubicación del repartidor
@@ -95,6 +97,15 @@ class DeliveryPersonViewSet(viewsets.ModelViewSet):
         Cambiar disponibilidad del repartidor
         """
         delivery_person = self.get_object()
+        new_availability = request.data.get('availability')
+        
+        # Block going online if KYC not approved
+        if new_availability == 'available' and delivery_person.background_check_status != 'approved':
+            return Response(
+                {'error': 'Debes completar la verificación KYC antes de estar disponible'},
+                status=400
+            )
+        
         serializer = DeliveryAvailabilitySerializer(
             delivery_person, data=request.data, partial=True
         )
@@ -165,6 +176,66 @@ class DeliveryPersonViewSet(viewsets.ModelViewSet):
             'total_deliveries': total_deliveries,
             'average_per_delivery': total_earnings / total_deliveries if total_deliveries else 0
         })
+    
+    @extend_schema(
+        summary='Subir documentos KYC',
+        description='Sube los documentos de identidad y selfie para verificación.',
+        tags=['delivery'],
+    )
+    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload_kyc(self, request, pk=None):
+        delivery_person = self.get_object()
+        
+        if delivery_person.user != request.user:
+            return Response({'error': 'No puedes modificar este perfil'}, status=403)
+        
+        for field in ['id_document_front', 'id_document_back', 'selfie']:
+            if field in request.FILES:
+                setattr(delivery_person, field, request.FILES[field])
+        
+        delivery_person.background_check_status = 'pending'
+        delivery_person.kyc_submitted_at = timezone.now()
+        delivery_person.save()
+        
+        return Response({
+            'message': 'Documentos subidos correctamente',
+            'background_check_status': delivery_person.background_check_status
+        })
+    
+    @extend_schema(
+        summary='Aprobar KYC',
+        description='Aprueba la verificación KYC de un repartidor. Solo admin.',
+        tags=['delivery'],
+    )
+    @action(detail=True, methods=['post'])
+    def approve_kyc(self, request, pk=None):
+        if request.user.role != 'admin':
+            return Response({'error': 'Solo administradores'}, status=403)
+        
+        delivery_person = self.get_object()
+        delivery_person.background_check_status = 'approved'
+        delivery_person.kyc_verified_at = timezone.now()
+        delivery_person.status = 'approved'
+        delivery_person.save()
+        
+        return Response({'message': 'KYC aprobado', 'status': 'approved'})
+    
+    @extend_schema(
+        summary='Rechazar KYC',
+        description='Rechaza la verificación KYC de un repartidor. Solo admin.',
+        tags=['delivery'],
+    )
+    @action(detail=True, methods=['post'])
+    def reject_kyc(self, request, pk=None):
+        if request.user.role != 'admin':
+            return Response({'error': 'Solo administradores'}, status=403)
+        
+        delivery_person = self.get_object()
+        delivery_person.background_check_status = 'rejected'
+        delivery_person.kyc_verified_at = None
+        delivery_person.save()
+        
+        return Response({'message': 'KYC rechazado', 'status': 'rejected'})
 
 @extend_schema_view(
     list=extend_schema(

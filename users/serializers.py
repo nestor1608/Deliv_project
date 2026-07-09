@@ -2,7 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 from django.db import models
+
+from core.utils.lockout import check_lockout, record_failed_attempt, reset_attempts
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """Serializer para registro de usuarios"""
@@ -73,65 +76,66 @@ class LoginSerializer(TokenObtainPairSerializer):
         username_or_email = attrs.get('username_or_email')
         password = attrs.get('password')
         user_type = attrs.get('user_type')
-        
-        # Validar campos requeridos
+
         if not username_or_email:
             raise serializers.ValidationError({
                 'username_or_email': 'Este campo es requerido'
             })
-            
+
+        check_lockout(username_or_email)
+
         if not password:
             raise serializers.ValidationError({
                 'password': 'Este campo es requerido'
             })
-            
+
         if not user_type:
             raise serializers.ValidationError({
                 'user_type': 'Este campo es requerido'
             })
 
-        # Buscar usuario
-        user = User.objects.filter(
-            models.Q(username=username_or_email) | 
-            models.Q(email=username_or_email)
-        ).first()
+        try:
+            user = User.objects.filter(
+                models.Q(username=username_or_email) |
+                models.Q(email=username_or_email)
+            ).first()
 
-        if not user:
-            raise serializers.ValidationError({
-                'non_field_errors': ['Usuario no encontrado'],
-                'code': 'user_not_found'
-            })
+            if not user:
+                raise serializers.ValidationError({
+                    'non_field_errors': ['Usuario no encontrado'],
+                    'code': 'user_not_found'
+                })
 
-        # Validar contraseña
-        if not user.check_password(password):
-            raise serializers.ValidationError({
-                'non_field_errors': ['Contraseña incorrecta'],
-                'code': 'invalid_password'
-            })
+            if not user.check_password(password):
+                raise serializers.ValidationError({
+                    'non_field_errors': ['Contraseña incorrecta'],
+                    'code': 'invalid_password'
+                })
 
-        # Validar estado del usuario
-        if user.status != 'active':
-            raise serializers.ValidationError({
-                'non_field_errors': [f'Cuenta {user.get_status_display().lower()}. Contacte al soporte'],
-                'code': 'account_inactive'
-            })
+            if user.status != 'active':
+                raise serializers.ValidationError({
+                    'non_field_errors': [f'Cuenta {user.get_status_display().lower()}. Contacte al soporte'],
+                    'code': 'account_inactive'
+                })
 
-        # Validar rol del usuario
-        if user.role != user_type:
-            raise serializers.ValidationError({
-                'non_field_errors': [f'No tiene permisos para acceder como {user_type}'],
-                'code': 'invalid_role'
-            })
+            if user.role != user_type:
+                raise serializers.ValidationError({
+                    'non_field_errors': [f'No tiene permisos para acceder como {user_type}'],
+                    'code': 'invalid_role'
+                })
 
-        # Generar tokens JWT
-        refresh = self.get_token(user)
-        
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user': UserSerializer(user).data,
-            'code': 'login_success'
-        }
+            reset_attempts(username_or_email)
+
+            refresh = self.get_token(user)
+            return {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': UserSerializer(user).data,
+                'code': 'login_success'
+            }
+        except (serializers.ValidationError, AuthenticationFailed):
+            record_failed_attempt(username_or_email)
+            raise
 
 
 class ChangePasswordSerializer(serializers.Serializer):

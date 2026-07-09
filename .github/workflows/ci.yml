@@ -1,0 +1,51 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, dev, test]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install flake8 black
+          pip install -r requirements.txt
+      - name: Lint with flake8
+        run: flake8 . --count --max-line-length=120 --show-source --statistics
+      - name: Check formatting with black
+        run: black --check --diff --line-length=120 .
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: deliv_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: python manage.py test
+        env:
+          USE_POSTGRESQL: 'True'
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/deliv_test
+          SECRET_KEY: test-key-not-for-production
+          DEBUG: 'False'

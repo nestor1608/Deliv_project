@@ -1,0 +1,153 @@
+C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework_simplejwt\__init__.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import DistributionNotFound, get_distribution
+Found 351 test(s).
+Creating test database for alias 'default'...
+
+System check identified no issues (0 silenced).
+.........Unhandled exception: something broke
+.....Account locked out
+Blocked login attempt on locked account
+.Account locked out
+Account locked out
+Account locked out
+Account locked out
+.Account locked out
+.....Account locked out
+.Account locked out
+....Account locked out
+..API Exception in POST /api/customers/addresses/: {'street_address': [ErrorDetail(string='This field is required.', code='required')], 'city': [ErrorDetail(string='This field is required.', code='required')], 'state': [ErrorDetail(string='This field is required.', code='required')], 'postal_code': [ErrorDetail(string='This field is required.', code='required')]}
+{"event": "Bad Request: /api/customers/addresses/"}
+...API Exception in POST /api/customers/addresses/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/"}
+.API Exception in DELETE /api/customers/addresses/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/1/"}
+.API Exception in DELETE /api/customers/addresses/99999/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/99999/"}
+.API Exception in DELETE /api/customers/addresses/2/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/2/"}
+..API Exception in GET /api/customers/addresses/99999/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/99999/"}
+.API Exception in GET /api/customers/addresses/2/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/2/"}
+..API Exception in GET /api/customers/addresses/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/1/"}
+.C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'customers.models.CustomerAddress'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+..API Exception in GET /api/customers/addresses/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/"}
+....API Exception in PATCH /api/customers/addresses/2/: No CustomerAddress matches the given query.
+{"event": "Not Found: /api/customers/addresses/2/"}
+..API Exception in PATCH /api/customers/addresses/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/addresses/1/"}
+..API Exception in GET /api/customers/profile/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/profile/"}
+.......API Exception in PATCH /api/customers/profile/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/customers/profile/"}
+....API Exception in POST /api/delivery/delivery-persons/: {'license_number': [ErrorDetail(string='delivery person with this license number already exists.', code='unique')]}
+{"event": "Bad Request: /api/delivery/delivery-persons/"}
+.API Exception in POST /api/delivery/delivery-persons/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/"}
+.API Exception in DELETE /api/delivery/delivery-persons/2/: No DeliveryPerson matches the given query.
+{"event": "Not Found: /api/delivery/delivery-persons/2/"}
+..API Exception in DELETE /api/delivery/delivery-persons/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/"}
+..C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'delivery.models.DeliveryPerson'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+.API Exception in GET /api/delivery/delivery-persons/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/"}
+.API Exception in GET /api/delivery/delivery-persons/2/: No DeliveryPerson matches the given query.
+{"event": "Not Found: /api/delivery/delivery-persons/2/"}
+..API Exception in GET /api/delivery/delivery-persons/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/"}
+.API Exception in PATCH /api/delivery/delivery-persons/2/: No DeliveryPerson matches the given query.
+{"event": "Not Found: /api/delivery/delivery-persons/2/"}
+..API Exception in PATCH /api/delivery/delivery-persons/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/"}
+.API Exception in POST /api/delivery/ratings/: {'order': [ErrorDetail(string='delivery rating with this order already exists.', code='unique')]}
+{"event": "Bad Request: /api/delivery/ratings/"}
+.API Exception in POST /api/delivery/ratings/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/delivery/ratings/"}
+.API Exception in POST /api/delivery/ratings/: {'non_field_errors': [ErrorDetail(string='Solo puedes calificar pedidos entregados', code='invalid')]}
+{"event": "Bad Request: /api/delivery/ratings/"}
+..API Exception in POST /api/delivery/ratings/: {'non_field_errors': [ErrorDetail(string='No puedes calificar un pedido que no es tuyo', code='invalid')]}
+{"event": "Bad Request: /api/delivery/ratings/"}
+.C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'delivery.models.DeliveryRating'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+.API Exception in GET /api/delivery/ratings/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/delivery/ratings/"}
+......API Exception in PATCH /api/delivery/delivery-persons/1/update_availability/: {'availability': [ErrorDetail(string='"invalid" is not a valid choice.', code='invalid_choice')]}
+{"event": "Bad Request: /api/delivery/delivery-persons/1/update_availability/"}
+.API Exception in PATCH /api/delivery/delivery-persons/1/update_location/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/delivery/delivery-persons/1/update_location/"}
+...API Exception in GET /api/mobility/drivers/2/active_trips/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/active_trips/"}
+...API Exception in POST /api/mobility/drivers/: {'license_number': [ErrorDetail(string='driver with this license number already exists.', code='unique')]}
+{"event": "Bad Request: /api/mobility/drivers/"}
+.API Exception in POST /api/mobility/drivers/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/drivers/"}
+..API Exception in GET /api/mobility/drivers/2/earnings/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/earnings/"}
+..API Exception in GET /api/mobility/drivers/: 'AnonymousUser' object has no attribute 'role'
+Unhandled exception: 'AnonymousUser' object has no attribute 'role'
+{"event": "Internal Server Error: /api/mobility/drivers/"}
+....API Exception in GET /api/mobility/drivers/1/: 'AnonymousUser' object has no attribute 'role'
+Unhandled exception: 'AnonymousUser' object has no attribute 'role'
+{"event": "Internal Server Error: /api/mobility/drivers/1/"}
+...API Exception in PATCH /api/mobility/drivers/1/update_availability/: {'availability': [ErrorDetail(string='"invalid" is not a valid choice.', code='invalid_choice')]}
+{"event": "Bad Request: /api/mobility/drivers/1/update_availability/"}
+.API Exception in PATCH /api/mobility/drivers/2/update_availability/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/update_availability/"}
+.API Exception in PATCH /api/mobility/drivers/2/update_location/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/update_location/"}
+..API Exception in PATCH /api/mobility/drivers/1/update_location/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/drivers/1/update_location/"}
+.API Exception in PATCH /api/mobility/drivers/2/: No Driver matches the given query.
+{"event": "Not Found: /api/mobility/drivers/2/"}
+..API Exception in PATCH /api/mobility/drivers/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/drivers/1/"}
+.API Exception in GET /api/mobility/nearby-drivers/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/nearby-drivers/"}
+.{"event": "Bad Request: /api/mobility/nearby-drivers/"}
+..{"event": "Bad Request: /api/mobility/trips/1/accept_trip/"}
+.{"event": "Forbidden: /api/mobility/trips/1/accept_trip/"}
+....Trip 99999 not found for assignment timeout
+..{"event": "Bad Request: /api/mobility/trips/1/cancel_trip/"}
+.API Exception in PATCH /api/mobility/trips/1/cancel_trip/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/trips/1/cancel_trip/"}
+...API Exception in PATCH /api/mobility/trips/1/complete_trip/: No Trip matches the given query.
+{"event": "Not Found: /api/mobility/trips/1/complete_trip/"}
+.{"event": "Bad Request: /api/mobility/trips/1/complete_trip/"}
+...API Exception in POST /api/mobility/trips/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/mobility/trips/"}
+.API Exception in POST /api/mobility/trips/: {'pickup_longitude': [ErrorDetail(string='This field is required.', code='required')], 'destination_latitude': [ErrorDetail(string='This field is required.', code='required')], 'destination_longitude': [ErrorDetail(string='This field is required.', code='required')]}
+{"event": "Bad Request: /api/mobility/trips/"}
+.API Exception in POST /api/mobility/trips/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/trips/"}
+.API Exception in POST /api/mobility/estimate/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/mobility/estimate/"}
+.{"event": "Bad Request: /api/mobility/estimate/"}
+..API Exception in POST /api/mobility/ratings/: {'non_field_errors': [ErrorDetail(string='The fields trip, rating_type must make a unique set.', code='unique')]}
+{"event": "Bad Request: /api/mobility/ratings/"}
+...API Exception in POST /api/mobility/ratings/: {'non_field_errors': [ErrorDetail(string='No puedes calificar este viaje', code='invalid')]}
+{"event": "Bad Request: /api/mobility/ratings/"}
+.API Exception in POST /api/mobility/ratings/: {'non_field_errors': [ErrorDetail(string='Solo puedes calificar viajes completados', code='invalid')]}
+{"event": "Bad Request: /api/mobility/ratings/"}
+..API Exception in GET /api/mobility/trips/1/: No Trip matches the given query.
+{"event": "Not Found: /api/mobility/trips/1/"}
+..API Exception in GET /api/mobility/trips/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/mobility/trips/1/"}
+..API Exception in PATCH /api/mobility/trips/1/start_trip/: No Trip matches the given query.
+{"event": "Not Found: /api/mobility/trips/1/start_trip/"}
+.{"event": "Bad Request: /api/mobility/trips/1/start_trip/"}
+..{"event": "Not Found: /api/notifications/mark-read/99999/"}
+.{"event": "Not Found: /api/notifications/mark-read/1/"}
+..API Exception in PATCH /api/notifications/mark-read/1/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/notifications/mark-read/1/"}
+.....API Exception in POST /api/notifications/notifications/: {'notification_type_id': [ErrorDetail(string='Tipo de notificaci¾n no existe o estß inactivo', code='invalid')]}
+{"event": "Bad Request: /api/notifications/notifications/"}
+.API Exception in POST /api/notifications/notifications/: {'user_id': [ErrorDetail(string='Usuario no existe', code='invalid')]}
+{"event": "Bad Request: /api/notifications/notifications/"}
+.API Exception in POST /api/notifications/notifications/: You do not have permission to perform this action.
+{"event": "Forbidden: /api/notifications/notifications/"}
+.API Exception in POST /api/notifications/notifications/: Authentication credentials were not provided.
+{"event": "Unauthorized: /api/notifications/notifications/"}

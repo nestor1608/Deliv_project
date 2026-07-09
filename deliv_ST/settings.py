@@ -108,6 +108,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
         'user': '1000/hour',
+        'location_updates': '20/min',
     },
 }
 # Configuración JWT
@@ -169,7 +170,18 @@ if config('USE_POSTGRESQL', default=False, cast=bool):
             'OPTIONS': {
                 'connect_timeout': config('DB_CONNECT_TIMEOUT', default=10, cast=int),
             },
-        }
+        },
+        'replica': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('REPLICA_DB_NAME', default=config('DB_NAME', default='deliv_db')),
+            'USER': config('REPLICA_DB_USER', default=config('DB_USER', default='postgres')),
+            'PASSWORD': config('REPLICA_DB_PASSWORD', default=config('DB_PASSWORD', default='postgres')),
+            'HOST': config('REPLICA_DB_HOST', default=config('DB_HOST', default='localhost')),
+            'PORT': config('REPLICA_DB_PORT', default=config('DB_PORT', default='5432')),
+            'OPTIONS': {
+                'options': '-c search_path=public',
+            },
+        },
     }
 else:
     DATABASES = {
@@ -178,6 +190,8 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+DATABASE_ROUTERS = ['core.db_router.CatalogueRouter']
 
 # CORS (para React Native)
 CORS_ALLOWED_ORIGINS = [
@@ -215,6 +229,17 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {"hosts": [('127.0.0.1', 6379)]},
     },
+}
+
+# Cache configuration (used by lockout service + rate limiting middleware)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
 }
 
 # Password validation
@@ -310,4 +335,48 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'core.tasks.update_delivery_person_availability',
         'schedule': 1800.0,  # Cada 30 minutos
     },
+        'reconcile-payments': {
+            'task': 'payments.tasks.reconcile_payments',
+            'schedule': 3600.0,  # Cada hora
+        },
+    'process-scheduled-orders': {
+        'task': 'orders.tasks.process_scheduled_orders',
+        'schedule': 60.0,  # Cada 60 segundos
+    },
 }
+
+# Celery task routing — split into dedicated queues
+CELERY_TASK_QUEUES = {
+    'default': {
+        'exchange': 'default',
+        'routing_key': 'default',
+    },
+    'payments': {
+        'exchange': 'payments',
+        'routing_key': 'payments',
+    },
+    'notifications': {
+        'exchange': 'notifications',
+        'routing_key': 'notifications',
+    },
+}
+
+CELERY_TASK_ROUTES = {
+    'payments.tasks.*': {'queue': 'payments'},
+    'payments.*': {'queue': 'payments'},
+    'notifications.tasks.*': {'queue': 'notifications'},
+    'notifications.*': {'queue': 'notifications'},
+    'core.tasks.cleanup_old_notifications': {'queue': 'notifications'},
+    'core.tasks.send_push_notification': {'queue': 'notifications'},
+    'core.tasks.*': {'queue': 'default'},
+    'orders.tasks.*': {'queue': 'default'},
+    'delivery.tasks.*': {'queue': 'default'},
+    'mobility.tasks.*': {'queue': 'default'},
+    'vendors.tasks.*': {'queue': 'default'},
+    'customers.tasks.*': {'queue': 'default'},
+    'users.tasks.*': {'queue': 'default'},
+}
+
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_DEFAULT_EXCHANGE = 'default'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'

@@ -35,6 +35,23 @@ class DeliveryPerson(models.Model):
     current_longitude = models.DecimalField(max_digits=11, decimal_places=8, blank=True, null=True)
     last_location_update = models.DateTimeField(blank=True, null=True)
     
+    # KYC fields
+    id_document_front = models.ImageField(upload_to='kyc/delivery/', blank=True, null=True)
+    id_document_back = models.ImageField(upload_to='kyc/delivery/', blank=True, null=True)
+    selfie = models.ImageField(upload_to='kyc/delivery/', blank=True, null=True)
+    background_check_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('not_submitted', 'No enviado'),
+            ('pending', 'Pendiente'),
+            ('approved', 'Aprobado'),
+            ('rejected', 'Rechazado'),
+        ],
+        default='not_submitted'
+    )
+    kyc_submitted_at = models.DateTimeField(null=True, blank=True)
+    kyc_verified_at = models.DateTimeField(null=True, blank=True)
+    
     # Métricas
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     total_deliveries = models.PositiveIntegerField(default=0)

@@ -11,6 +11,7 @@ class Order(models.Model):
     
     STATUS_CHOICES = [
         ('pending', 'Pendiente'),
+        ('scheduled', 'Programado'),
         ('confirmed', 'Confirmado'),
         ('preparing', 'Preparando'),
         ('ready', 'Listo'),
@@ -91,6 +92,7 @@ class Order(models.Model):
     
     # Notas y observaciones
     customer_notes = models.TextField(blank=True)
+    scheduled_time = models.DateTimeField(null=True, blank=True, help_text="Fecha/hora programada para el pedido")
     vendor_notes = models.TextField(blank=True)
     
     # Timestamps
@@ -107,6 +109,7 @@ class Order(models.Model):
             models.Index(fields=['vendor']),
             models.Index(fields=['status']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['scheduled_time']),
         ]
     
     def __str__(self):

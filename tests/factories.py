@@ -119,6 +119,7 @@ class CustomerFactory(factory.django.DjangoModelFactory):
     loyalty_points = 0
     preferred_payment_method = 'cash'
     is_premium = False
+    phone_verified = False
 
 
 class CustomerAddressFactory(factory.django.DjangoModelFactory):
