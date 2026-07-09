@@ -283,6 +283,10 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
+# Ensure logs directory exists
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(exist_ok=True)
+
 # Configuración de logging
 LOGGING = {
     "version": 1,
@@ -291,7 +295,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "logs/django.log",
+            "filename": str(LOGS_DIR / "django.log"),
         },
         "console": {
             "level": "DEBUG",
