@@ -571,12 +571,12 @@ def stripe_webhook(request):
     Webhook para notificaciones de Stripe
     """
     try:
-        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+        sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
 
         if not sig_header:
             return HttpResponse(status=400)
 
-        webhook_secret = settings.PAYMENT_SETTINGS.get('STRIPE', {}).get('WEBHOOK_SECRET', '')
+        webhook_secret = settings.PAYMENT_SETTINGS.get("STRIPE", {}).get("WEBHOOK_SECRET", "")
         if not webhook_secret:
             return HttpResponse(status=501)  # Not implemented
 
