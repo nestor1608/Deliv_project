@@ -4,6 +4,24 @@ info:
   version: 1.0.0
   description: API de la plataforma híbrida de delivery y movilidad
 paths:
+  /api/admin/dashboard/:
+    get:
+      operationId: admin_dashboard_retrieve
+      description: Obtiene métricas agregadas para el dashboard administrativo.
+      summary: Admin Dashboard Analytics
+      parameters:
+      - in: query
+        name: days
+        schema:
+          type: integer
+        description: 'Días a analizar (default: 30)'
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/auth/change-password/:
     put:
       operationId: auth_change_password_update
@@ -794,6 +812,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOrderList'
           description: ''
+  /api/delivery/delivery-persons/{id}/approve_kyc/:
+    post:
+      operationId: delivery_delivery_persons_approve_kyc_create
+      description: Aprueba la verificación KYC de un repartidor. Solo admin.
+      summary: Aprobar KYC
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPerson'
+          description: ''
   /api/delivery/delivery-persons/{id}/earnings/:
     get:
       operationId: delivery_delivery_persons_earnings_retrieve
@@ -826,6 +879,41 @@ paths:
       responses:
         '200':
           description: Ganancias del repartidor
+  /api/delivery/delivery-persons/{id}/reject_kyc/:
+    post:
+      operationId: delivery_delivery_persons_reject_kyc_create
+      description: Rechaza la verificación KYC de un repartidor. Solo admin.
+      summary: Rechazar KYC
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPerson'
+          description: ''
   /api/delivery/delivery-persons/{id}/update_availability/:
     patch:
       operationId: delivery_delivery_persons_update_availability_partial_update
@@ -886,6 +974,38 @@ paths:
       responses:
         '200':
           description: Ubicación actualizada correctamente
+  /api/delivery/delivery-persons/{id}/upload_kyc/:
+    post:
+      operationId: delivery_delivery_persons_upload_kyc_create
+      description: Sube los documentos de identidad y selfie para verificación.
+      summary: Subir documentos KYC
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this delivery person.
+        required: true
+      tags:
+      - delivery
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeliveryPersonRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryPerson'
+          description: ''
   /api/delivery/ratings/:
     get:
       operationId: delivery_ratings_list
@@ -1261,6 +1381,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedTripList'
           description: ''
+  /api/mobility/drivers/{id}/approve_kyc/:
+    post:
+      operationId: mobility_drivers_approve_kyc_create
+      description: ViewSet para conductores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
   /api/mobility/drivers/{id}/earnings/:
     get:
       operationId: mobility_drivers_earnings_retrieve
@@ -1292,6 +1445,39 @@ paths:
       responses:
         '200':
           description: Ganancias del conductor
+  /api/mobility/drivers/{id}/reject_kyc/:
+    post:
+      operationId: mobility_drivers_reject_kyc_create
+      description: ViewSet para conductores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
   /api/mobility/drivers/{id}/update_availability/:
     patch:
       operationId: mobility_drivers_update_availability_partial_update
@@ -1350,6 +1536,36 @@ paths:
       responses:
         '200':
           description: Ubicación actualizada correctamente
+  /api/mobility/drivers/{id}/upload_kyc/:
+    post:
+      operationId: mobility_drivers_upload_kyc_create
+      description: ViewSet para conductores
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - mobility
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DriverRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+          description: ''
   /api/mobility/estimate/:
     post:
       operationId: mobility_estimate_create
@@ -2495,6 +2711,188 @@ paths:
               schema:
                 $ref: '#/components/schemas/Order'
           description: ''
+  /api/orders/coupons/:
+    get:
+      operationId: orders_coupons_list
+      description: Admin CRUD for coupons.
+      parameters:
+      - in: query
+        name: discount_type
+        schema:
+          type: string
+          enum:
+          - fixed
+          - percentage
+        description: |-
+          * `percentage` - Porcentaje
+          * `fixed` - Monto Fijo
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: vendor
+        schema:
+          type: integer
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCouponList'
+          description: ''
+    post:
+      operationId: orders_coupons_create
+      description: Admin CRUD for coupons.
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CouponRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CouponRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CouponRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coupon'
+          description: ''
+  /api/orders/coupons/{id}/:
+    get:
+      operationId: orders_coupons_retrieve
+      description: Admin CRUD for coupons.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coupon.
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coupon'
+          description: ''
+    put:
+      operationId: orders_coupons_update
+      description: Admin CRUD for coupons.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coupon.
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CouponRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CouponRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CouponRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coupon'
+          description: ''
+    patch:
+      operationId: orders_coupons_partial_update
+      description: Admin CRUD for coupons.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coupon.
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCouponRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCouponRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCouponRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coupon'
+          description: ''
+    delete:
+      operationId: orders_coupons_destroy
+      description: Admin CRUD for coupons.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coupon.
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/orders/tracking/{order_number}/:
     get:
       operationId: orders_tracking_retrieve
@@ -2517,6 +2915,33 @@ paths:
           description: Datos de seguimiento del pedido
         '404':
           description: Pedido no encontrado
+  /api/orders/validate-coupon/:
+    get:
+      operationId: orders_validate_coupon_retrieve
+      description: Valida un código de cupón y devuelve el descuento aplicable.
+      summary: Validar cupón
+      parameters:
+      - in: query
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: subtotal
+        schema:
+          type: number
+        required: true
+      - in: query
+        name: vendor_id
+        schema:
+          type: integer
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/orders/vendor/:
     get:
       operationId: orders_vendor_list
@@ -3548,8 +3973,7 @@ paths:
       - in: query
         name: category
         schema:
-          type: string
-        description: Filtrar productos por categoría
+          type: integer
       - in: path
         name: id
         schema:
@@ -3573,6 +3997,11 @@ paths:
         schema:
           type: integer
       - in: query
+        name: product_category
+        schema:
+          type: string
+        description: Filtrar productos por categoría
+      - in: query
         name: search
         schema:
           type: string
@@ -3595,6 +4024,7 @@ paths:
       - vendors
       security:
       - jwtAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -3659,6 +4089,7 @@ paths:
       - vendors
       security:
       - jwtAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -3762,6 +4193,7 @@ paths:
       - vendors
       security:
       - jwtAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -3827,6 +4259,126 @@ components:
       required:
       - new_password
       - old_password
+    Coupon:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+        discount_type:
+          $ref: '#/components/schemas/DiscountTypeEnum'
+        discount_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        min_order_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        max_discount_cap:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Monto máximo de descuento (solo para porcentaje)
+        max_uses:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = ilimitado
+        max_uses_per_user:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        used_count:
+          type: integer
+          readOnly: true
+        vendor:
+          type: integer
+          nullable: true
+          description: Omitir para cupones globales
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - discount_type
+      - discount_value
+      - id
+      - used_count
+      - valid_from
+      - valid_to
+    CouponRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+        discount_type:
+          $ref: '#/components/schemas/DiscountTypeEnum'
+        discount_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        min_order_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        max_discount_cap:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Monto máximo de descuento (solo para porcentaje)
+        max_uses:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = ilimitado
+        max_uses_per_user:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vendor:
+          type: integer
+          nullable: true
+          description: Omitir para cupones globales
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+      required:
+      - code
+      - discount_type
+      - discount_value
+      - valid_from
+      - valid_to
     CreateOrderRequest:
       type: object
       description: Serializer para crear nuevos pedidos
@@ -3848,6 +4400,10 @@ components:
           nullable: true
         customer_notes:
           type: string
+        scheduled_time:
+          type: string
+          format: date-time
+          nullable: true
         items:
           type: array
           items:
@@ -4188,6 +4744,14 @@ components:
           type: string
       required:
       - rating
+    DiscountTypeEnum:
+      enum:
+      - percentage
+      - fixed
+      type: string
+      description: |-
+        * `percentage` - Porcentaje
+        * `fixed` - Monto Fijo
     Driver:
       type: object
       description: Serializer completo para conductores
@@ -4626,7 +5190,6 @@ components:
       - delivery_address
       - id
       - order_number
-      - total_amount
       - vendor_name
     OrderItemRequest:
       type: object
@@ -4648,6 +5211,7 @@ components:
     OrderStatusEnum:
       enum:
       - pending
+      - scheduled
       - confirmed
       - preparing
       - ready
@@ -4657,12 +5221,33 @@ components:
       type: string
       description: |-
         * `pending` - Pendiente
+        * `scheduled` - Programado
         * `confirmed` - Confirmado
         * `preparing` - Preparando
         * `ready` - Listo
         * `on_route` - En camino
         * `delivered` - Entregado
         * `cancelled` - Cancelado
+    PaginatedCouponList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coupon'
     PaginatedCustomerAddressList:
       type: object
       properties:
@@ -4993,6 +5578,54 @@ components:
         new_password:
           type: string
           minLength: 8
+    PatchedCouponRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+        discount_type:
+          $ref: '#/components/schemas/DiscountTypeEnum'
+        discount_value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        min_order_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        max_discount_cap:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Monto máximo de descuento (solo para porcentaje)
+        max_uses:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = ilimitado
+        max_uses_per_user:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        vendor:
+          type: integer
+          nullable: true
+          description: Omitir para cupones globales
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
     PatchedCustomerAddressRequest:
       type: object
       description: Serializer para direcciones del cliente
@@ -5621,6 +6254,7 @@ components:
       - completed
       - failed
       - cancelled
+      - partially_refunded
       - refunded
       type: string
       description: |-
@@ -5629,6 +6263,7 @@ components:
         * `completed` - Completado
         * `failed` - Fallido
         * `cancelled` - Cancelado
+        * `partially_refunded` - Reembolsado Parcialmente
         * `refunded` - Reembolsado
     PlatformEnum:
       enum:
@@ -6746,9 +7381,14 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        distance:
+          type: number
+          format: double
+          readOnly: true
       required:
       - business_name
       - category_name
+      - distance
       - id
     VendorRating:
       type: object

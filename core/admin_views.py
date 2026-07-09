@@ -5,17 +5,18 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 from .analytics import get_dashboard_data
 
+
 @extend_schema(
-    summary='Admin Dashboard Analytics',
-    description='Obtiene métricas agregadas para el dashboard administrativo.',
-    tags=['admin'],
+    summary="Admin Dashboard Analytics",
+    description="Obtiene métricas agregadas para el dashboard administrativo.",
+    tags=["admin"],
     parameters=[
-        OpenApiParameter(name='days', type=OpenApiTypes.INT, description='Días a analizar (default: 30)'),
+        OpenApiParameter(name="days", type=OpenApiTypes.INT, description="Días a analizar (default: 30)"),
     ],
 )
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def admin_dashboard(request):
-    days = int(request.query_params.get('days', 30))
+    days = int(request.query_params.get("days", 30))
     data = get_dashboard_data(days)
     return Response(data)

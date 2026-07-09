@@ -5,6 +5,7 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
+
 @shared_task
 def process_scheduled_orders():
     """
@@ -15,27 +16,26 @@ def process_scheduled_orders():
 
     now = timezone.now()
     due_orders = Order.objects.filter(
-        status='scheduled',
-        scheduled_time__lte=now,
-        scheduled_time__gte=now - timedelta(days=1)
+        status="scheduled", scheduled_time__lte=now, scheduled_time__gte=now - timedelta(days=1)
     )
 
     count = 0
     for order in due_orders:
-        order.status = 'confirmed'
+        order.status = "confirmed"
         order.confirmed_at = timezone.now()
-        order.save(update_fields=['status', 'confirmed_at', 'updated_at'])
+        order.save(update_fields=["status", "confirmed_at", "updated_at"])
         count += 1
 
         from notifications.services import notify_user
+
         notify_user(
             order.customer.user,
-            'Pedido en proceso',
-            f'Tu pedido #{order.order_number} ya está en preparación.',
-            {'order_id': order.id, 'type': 'order_confirmed'}
+            "Pedido en proceso",
+            f"Tu pedido #{order.order_number} ya está en preparación.",
+            {"order_id": order.id, "type": "order_confirmed"},
         )
 
     if count:
-        logger.info(f'Processed {count} scheduled order(s)')
+        logger.info(f"Processed {count} scheduled order(s)")
 
-    return {'processed': count}
+    return {"processed": count}

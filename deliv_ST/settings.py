@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config, Csv
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,14 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = [
-    '*',
-]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,api.deliv.com").split(",")
 
 # Configuración para desarrollo - Redis en memoria
 # if DEBUG:
@@ -39,76 +37,74 @@ ALLOWED_HOSTS = [
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Third party apps
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
-    'channels',  # Para WebSockets
-    'django_filters',  # Para filtros avanzados
-    'drf_spectacular',  # Para documentación OpenAPI/Swagger
-    
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
+    "channels",  # Para WebSockets
+    "django_filters",  # Para filtros avanzados
+    "drf_spectacular",  # Para documentación OpenAPI/Swagger
     # Local apps
-    'core',
-    'users',
-    'customers',
-    'orders',
-    'vendors',
-    'delivery',
-    'mobility',        # Nueva app para viajes
-    'notifications',   # Nueva app para notificaciones
-    'payments',        # Nueva app para pagos
+    "core",
+    "users",
+    "customers",
+    "orders",
+    "vendors",
+    "delivery",
+    "mobility",  # Nueva app para viajes
+    "notifications",  # Nueva app para notificaciones
+    "payments",  # Nueva app para pagos
 ]
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # Mover arriba
-    'users.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # Mover arriba
+    "users.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 
 # Configuración de REST Framework
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
     ],
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
     ],
-    'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
+    "EXCEPTION_HANDLER": "core.exceptions.custom_exception_handler",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
     ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour',
-        'location_updates': '20/min',
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/hour",
+        "user": "1000/hour",
+        "location_updates": "20/min",
     },
 }
 # Configuración JWT
@@ -116,40 +112,40 @@ from datetime import timedelta
 
 # Configuración JWT
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
 }
 
 # Modelo de usuario personalizado
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 # Configuración de drf-spectacular (OpenAPI/Swagger)
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Deliv API',
-    'DESCRIPTION': 'API de la plataforma híbrida de delivery y movilidad',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'COMPONENT_SPLIT_REQUEST': True,
-    'SCHEMA_PATH_PREFIX': r'/api/',
-    'SWAGGER_UI_SETTINGS': {
-        'deepLinking': True,
-        'persistAuthorization': True,
-        'displayRequestDuration': True,
+    "TITLE": "Deliv API",
+    "DESCRIPTION": "API de la plataforma híbrida de delivery y movilidad",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": r"/api/",
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayRequestDuration": True,
     },
-    'TAGS': [
-        {'name': 'auth', 'description': 'Autenticación y registro de usuarios'},
-        {'name': 'customers', 'description': 'Perfiles y direcciones de clientes'},
-        {'name': 'vendors', 'description': 'Tiendas, productos y categorías'},
-        {'name': 'orders', 'description': 'Pedidos y seguimiento'},
-        {'name': 'delivery', 'description': 'Repartidores y entregas'},
-        {'name': 'mobility', 'description': 'Viajes y conductores'},
-        {'name': 'notifications', 'description': 'Notificaciones push y WebSockets'},
-        {'name': 'payments', 'description': 'Pagos, métodos de pago y reembolsos'},
+    "TAGS": [
+        {"name": "auth", "description": "Autenticación y registro de usuarios"},
+        {"name": "customers", "description": "Perfiles y direcciones de clientes"},
+        {"name": "vendors", "description": "Tiendas, productos y categorías"},
+        {"name": "orders", "description": "Pedidos y seguimiento"},
+        {"name": "delivery", "description": "Repartidores y entregas"},
+        {"name": "mobility", "description": "Viajes y conductores"},
+        {"name": "notifications", "description": "Notificaciones push y WebSockets"},
+        {"name": "payments", "description": "Pagos, métodos de pago y reembolsos"},
     ],
 }
 
@@ -157,88 +153,87 @@ SPECTACULAR_SETTINGS = {
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Configuración dinámica: PostgreSQL en producción, SQLite como fallback local
-if config('USE_POSTGRESQL', default=False, cast=bool):
+if config("USE_POSTGRESQL", default=False, cast=bool):
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='deliv_db'),
-            'USER': config('DB_USER', default='deliv_user'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
-            'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=600, cast=int),
-            'OPTIONS': {
-                'connect_timeout': config('DB_CONNECT_TIMEOUT', default=10, cast=int),
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="deliv_db"),
+            "USER": config("DB_USER", default="deliv_user"),
+            "PASSWORD": config("DB_PASSWORD", default=""),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=600, cast=int),
+            "OPTIONS": {
+                "connect_timeout": config("DB_CONNECT_TIMEOUT", default=10, cast=int),
             },
         },
-        'replica': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('REPLICA_DB_NAME', default=config('DB_NAME', default='deliv_db')),
-            'USER': config('REPLICA_DB_USER', default=config('DB_USER', default='postgres')),
-            'PASSWORD': config('REPLICA_DB_PASSWORD', default=config('DB_PASSWORD', default='postgres')),
-            'HOST': config('REPLICA_DB_HOST', default=config('DB_HOST', default='localhost')),
-            'PORT': config('REPLICA_DB_PORT', default=config('DB_PORT', default='5432')),
-            'OPTIONS': {
-                'options': '-c search_path=public',
+        "replica": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("REPLICA_DB_NAME", default=config("DB_NAME", default="deliv_db")),
+            "USER": config("REPLICA_DB_USER", default=config("DB_USER", default="postgres")),
+            "PASSWORD": config("REPLICA_DB_PASSWORD", default=config("DB_PASSWORD", default="postgres")),
+            "HOST": config("REPLICA_DB_HOST", default=config("DB_HOST", default="localhost")),
+            "PORT": config("REPLICA_DB_PORT", default=config("DB_PORT", default="5432")),
+            "OPTIONS": {
+                "options": "-c search_path=public",
             },
         },
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 
-DATABASE_ROUTERS = ['core.db_router.CatalogueRouter']
+DATABASE_ROUTERS = ["core.db_router.CatalogueRouter"]
 
 # CORS (para React Native)
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://995d4992d959.ngrok-free.app" 
-]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-CORS_ALLOW_ALL_ORIGINS = True  # Solo para desarrollo
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
 
 
-ROOT_URLCONF = 'deliv_ST.urls'
+ROOT_URLCONF = "deliv_ST.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'deliv_ST.wsgi.application'
-ASGI_APPLICATION = 'deliv_ST.asgi.application'
+WSGI_APPLICATION = "deliv_ST.wsgi.application"
+ASGI_APPLICATION = "deliv_ST.asgi.application"
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {"hosts": [('127.0.0.1', 6379)]},
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
     },
 }
 
 # Cache configuration (used by lockout service + rate limiting middleware)
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 
@@ -247,16 +242,16 @@ CACHES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -264,9 +259,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -276,107 +271,123 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Configuración de archivos media
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 # Configuración de logging
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/django.log',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "logs/django.log",
         },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file", "console"],
+            "level": "INFO",
+            "propagate": True,
         },
-        'deliv_ST': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "deliv_ST": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
 
+# Frontend URL (for password reset emails, etc.)
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8081")
+
+# Payment gateway settings
+PAYMENT_SETTINGS = {
+    "MERCADOPAGO": {
+        "ACCESS_TOKEN": os.getenv("MP_ACCESS_TOKEN", ""),
+        "PUBLIC_KEY": os.getenv("MP_PUBLIC_KEY", ""),
+        "WEBHOOK_SECRET": os.getenv("MP_WEBHOOK_SECRET", ""),
+    },
+    "STRIPE": {
+        "SECRET_KEY": os.getenv("STRIPE_SECRET_KEY", ""),
+        "WEBHOOK_SECRET": os.getenv("STRIPE_WEBHOOK_SECRET", ""),
+    },
+}
+
 # Configuración en settings.py para Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'America/Argentina/Buenos_Aires'
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "America/Argentina/Buenos_Aires"
 
 # Programar tareas periódicas
 CELERY_BEAT_SCHEDULE = {
-    'cleanup-notifications': {
-        'task': 'core.tasks.cleanup_old_notifications',
-        'schedule': 86400.0,  # Diario (24 horas)
+    "cleanup-notifications": {
+        "task": "core.tasks.cleanup_old_notifications",
+        "schedule": 86400.0,  # Diario (24 horas)
     },
-    'update-delivery-availability': {
-        'task': 'core.tasks.update_delivery_person_availability',
-        'schedule': 1800.0,  # Cada 30 minutos
+    "update-delivery-availability": {
+        "task": "core.tasks.update_delivery_person_availability",
+        "schedule": 1800.0,  # Cada 30 minutos
     },
-        'reconcile-payments': {
-            'task': 'payments.tasks.reconcile_payments',
-            'schedule': 3600.0,  # Cada hora
-        },
-    'process-scheduled-orders': {
-        'task': 'orders.tasks.process_scheduled_orders',
-        'schedule': 60.0,  # Cada 60 segundos
+    "reconcile-payments": {
+        "task": "payments.tasks.reconcile_payments",
+        "schedule": 3600.0,  # Cada hora
+    },
+    "process-scheduled-orders": {
+        "task": "orders.tasks.process_scheduled_orders",
+        "schedule": 60.0,  # Cada 60 segundos
     },
 }
 
 # Celery task routing — split into dedicated queues
 CELERY_TASK_QUEUES = {
-    'default': {
-        'exchange': 'default',
-        'routing_key': 'default',
+    "default": {
+        "exchange": "default",
+        "routing_key": "default",
     },
-    'payments': {
-        'exchange': 'payments',
-        'routing_key': 'payments',
+    "payments": {
+        "exchange": "payments",
+        "routing_key": "payments",
     },
-    'notifications': {
-        'exchange': 'notifications',
-        'routing_key': 'notifications',
+    "notifications": {
+        "exchange": "notifications",
+        "routing_key": "notifications",
     },
 }
 
 CELERY_TASK_ROUTES = {
-    'payments.tasks.*': {'queue': 'payments'},
-    'payments.*': {'queue': 'payments'},
-    'notifications.tasks.*': {'queue': 'notifications'},
-    'notifications.*': {'queue': 'notifications'},
-    'core.tasks.cleanup_old_notifications': {'queue': 'notifications'},
-    'core.tasks.send_push_notification': {'queue': 'notifications'},
-    'core.tasks.*': {'queue': 'default'},
-    'orders.tasks.*': {'queue': 'default'},
-    'delivery.tasks.*': {'queue': 'default'},
-    'mobility.tasks.*': {'queue': 'default'},
-    'vendors.tasks.*': {'queue': 'default'},
-    'customers.tasks.*': {'queue': 'default'},
-    'users.tasks.*': {'queue': 'default'},
+    "payments.tasks.*": {"queue": "payments"},
+    "payments.*": {"queue": "payments"},
+    "notifications.tasks.*": {"queue": "notifications"},
+    "notifications.*": {"queue": "notifications"},
+    "core.tasks.cleanup_old_notifications": {"queue": "notifications"},
+    "core.tasks.send_push_notification": {"queue": "notifications"},
+    "core.tasks.*": {"queue": "default"},
+    "orders.tasks.*": {"queue": "default"},
+    "delivery.tasks.*": {"queue": "default"},
+    "mobility.tasks.*": {"queue": "default"},
+    "vendors.tasks.*": {"queue": "default"},
+    "customers.tasks.*": {"queue": "default"},
+    "users.tasks.*": {"queue": "default"},
 }
 
-CELERY_TASK_DEFAULT_QUEUE = 'default'
-CELERY_TASK_DEFAULT_EXCHANGE = 'default'
-CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+CELERY_TASK_DEFAULT_QUEUE = "default"
+CELERY_TASK_DEFAULT_EXCHANGE = "default"
+CELERY_TASK_DEFAULT_ROUTING_KEY = "default"

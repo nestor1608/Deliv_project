@@ -1,7 +1,3 @@
-from django.contrib import admin
-from .models import Vendor, Product
-
-
 # @admin.register(Product)
 # class ProductAdmin(admin.ModelAdmin):
 #     list_display = ('name', 'vendor', 'price', 'category', 'is_available')
@@ -10,8 +6,8 @@ from .models import Vendor, Product
 
 # @admin.register(Vendor)
 # class VendorAdmin(admin.ModelAdmin):
-#     list_display = ('business_name', 'user', 'status', 'is_open')  
-#     list_filter = ('status', 'is_open', 'category')  
+#     list_display = ('business_name', 'user', 'status', 'is_open')
+#     list_filter = ('status', 'is_open', 'category')
 #     search_fields = ('business_name', 'user__username')
 
 #     readonly_fields = ('created_at', 'updated_at')
